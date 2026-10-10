@@ -1,0 +1,1 @@
+ok - forced teardown cleans child and grandchild simulators and tolerates delete failures

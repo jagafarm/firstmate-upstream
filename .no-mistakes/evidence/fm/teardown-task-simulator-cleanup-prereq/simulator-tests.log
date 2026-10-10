@@ -1,0 +1,13 @@
+ok - teardown shuts down and deletes only the task-owned fm-<id> simulator
+ok - teardown leaves every simulator alone when no fm-<id> device exists
+ok - a failed simulator delete is a warning, not a teardown failure
+ok - a pool-<n> task id never triggers simulator cleanup
+ok - non-numeric pool task ids still delete their simulator
+not ok - sim-descendants: forced teardown should complete: ●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no live watcher process holds this home lock (last beat: 0s ago).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REFUSED: unsafe secondmate home removal target /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M03CSNS0ZXR77DDSS0V2KC/.test-phase-tmp/fm-teardown-tests.ek8jRK/sim-descendants-0/secondmate-home is inside the active firstmate home: expected exit 0, got 1
