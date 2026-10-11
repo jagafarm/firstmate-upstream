@@ -795,7 +795,7 @@ test_matrix_devin_bypass_pair() {
   # pair: native `devin` identity reporting idle/done makes it `empty`, every
   # weaker signal stays `unknown`.
   local rule title screen ghost typed titleclose arbitrary caps_plain_id
-  local wrapped_ghost wrapped_plain wrapped_typed bare status body candidate expected glyph
+  local wrapped_ghost wrapped_plain wrapped_typed bare status body candidate expected glyph separator tail
   caps_plain_id=$'styled=0\ncursor=0\nidentity=1\nrows=20'   # herdr plain-capture fallback
   rule='─────────────────────────────────────────────────────────────────'
   title='──────────────────── (bypass permissions on) ────────────────────'
@@ -863,6 +863,19 @@ test_matrix_devin_bypass_pair() {
   assert_screen "devin wrapped ghost under claude" unknown "$CAPS_STYLED" "$wrapped_ghost" '' $'claude\tidle'
   assert_screen "devin wrapped ghost under tmux cursor" empty "$CAPS_TMUX" "$wrapped_ghost" 2 probe-absent
   assert_screen "devin wrapped draft under tmux cursor" pending "$CAPS_TMUX" "$wrapped_typed" 2 probe-absent
+  for separator in '──────── (bypass permissions on) ─' "$title" '────────' "$rule"; do
+    for tail in '' $'\n❭' $'\n┃ ❭' $'\n╭────╮\n│ ❭  │\n╰────╯'; do
+      candidate="$title"$'\n❭ preserve this\n'"$separator$tail"$'\n'"$rule"$'\nSWE-2 Medium'
+      for status in idle done working blocked; do
+        assert_screen "devin ambiguous rule draft styled $status: $separator/$tail" unknown "$CAPS_STYLED" "$candidate" '' "devin"$'\t'"$status"
+        assert_screen "devin ambiguous rule draft plain $status: $separator/$tail" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"
+      done
+      assert_screen "devin ambiguous rule draft without probe: $separator/$tail" unknown "$CAPS_STYLED" "$candidate"
+      if fm_composer_extract_selected_content "$CAPS_STYLED" "$candidate" >/dev/null; then
+        fail "devin ambiguous rule draft must refuse content extraction"
+      fi
+    done
+  done
   # The title must be exact and in the opening position: an arbitrary title is
   # not Devin's separator, and a Devin title closing a solid-opened pair is no
   # devin pair either. Both keep their generic verdicts.

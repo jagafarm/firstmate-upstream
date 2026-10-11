@@ -841,6 +841,7 @@ _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
   FM_COMPOSER_SCAN_PI_PAIR_FOUND=0
   FM_COMPOSER_SCAN_PI_PAIR_VALID=0
   FM_COMPOSER_SCAN_DEVIN_PAIR_VALID=0
+  FM_COMPOSER_SCAN_DEVIN_BOUNDARY_AMBIG=0
   FM_COMPOSER_SCAN_PI_OPEN=-1
   FM_COMPOSER_SCAN_PI_CLOSE=-1
   FM_COMPOSER_SCAN_PI_LAST_SEPARATOR=-1
@@ -856,7 +857,7 @@ _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
   FM_COMPOSER_SCAN_LEFTBAR_GLYPH_ROW=-1
   FM_COMPOSER_SCAN_LEFTBAR_GLYPH=
   local leftbar_start=-1 pi_open=-1 pi_lines=0 pi_max
-  local pi_open_devin=0 separator_devin=0 separator_solid=0
+  local pi_open_devin=0 separator_devin=0 separator_solid=0 devin_closed=0
   local probe row_glyph row_glyph_row
   local box_glyph_row=-1 box_glyph='' pi_glyph_row=-1 pi_glyph=''
   pi_max=$FM_COMPOSER_PI_MAX_LINES
@@ -895,6 +896,7 @@ _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
       esac
       fm_composer_normalize_trim_var probe
       if fm_composer_leading_agent_glyph_var glyph "$probe"; then
+        if [ "$devin_closed" = 1 ]; then FM_COMPOSER_SCAN_DEVIN_BOUNDARY_AMBIG=1; fi
         row_glyph=$glyph
         row_glyph_row=$row
       fi
@@ -904,12 +906,14 @@ _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
     # preceding candidate and immediately opens the next, so an earlier
     # transcript rule can never outrank the live bottom composer pair.
     if _fm_composer_pi_separator_row "$trimmed"; then
+      if [ "$devin_closed" = 1 ]; then FM_COMPOSER_SCAN_DEVIN_BOUNDARY_AMBIG=1; fi
       separator_devin=0
       separator_solid=0
       if _fm_composer_devin_bypass_separator_row "$trimmed"; then separator_devin=1; fi
       if [ -z "${trimmed//─/}" ]; then separator_solid=1; fi
       FM_COMPOSER_SCAN_PI_LAST_SEPARATOR=$row
       if [ "$pi_open" -ge 0 ]; then
+        if [ "$pi_open_devin" = 1 ] && [ "$pi_glyph" = '❭' ]; then devin_closed=1; fi
         FM_COMPOSER_SCAN_PI_PAIR_FOUND=1
         FM_COMPOSER_SCAN_PI_OPEN=$pi_open
         FM_COMPOSER_SCAN_PI_CLOSE=$row
@@ -1524,6 +1528,7 @@ _fm_composer_select_cursorless() {
   FM_COMPOSER_SELECTED_FIRST=-1
   FM_COMPOSER_SELECTED_LAST=-1
   FM_COMPOSER_SELECTED_AMBIG=0
+  [ "$FM_COMPOSER_SCAN_DEVIN_BOUNDARY_AMBIG" = 0 ] || return 1
   if _fm_composer_locate_footer_zone "$plain"; then footer=1; fi
   if [ "$FM_COMPOSER_SCAN_BOX_BOTTOM" -ge 0 ]; then
     generic=$FM_COMPOSER_SCAN_BOX_BOTTOM
