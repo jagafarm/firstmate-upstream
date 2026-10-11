@@ -795,7 +795,7 @@ test_matrix_devin_bypass_pair() {
   # pair: native `devin` identity reporting idle/done makes it `empty`, every
   # weaker signal stays `unknown`.
   local rule title screen ghost typed titleclose arbitrary caps_plain_id
-  local wrapped_ghost wrapped_plain wrapped_typed bare status body candidate expected
+  local wrapped_ghost wrapped_plain wrapped_typed bare status body candidate expected glyph
   caps_plain_id=$'styled=0\ncursor=0\nidentity=1\nrows=20'   # herdr plain-capture fallback
   rule='─────────────────────────────────────────────────────────────────'
   title='──────────────────── (bypass permissions on) ────────────────────'
@@ -836,6 +836,13 @@ test_matrix_devin_bypass_pair() {
     assert_screen "devin wrapped plain $status" unknown "$caps_plain_id" "$wrapped_plain" '' "devin"$'\t'"$status"
     assert_screen "devin wrapped typed $status" pending "$CAPS_STYLED" "$wrapped_typed" '' "devin"$'\t'"$status"
     assert_screen "devin wrapped typed plain $status" unknown "$caps_plain_id" "$wrapped_typed" '' "devin"$'\t'"$status"
+    for glyph in '❭' '❯' '›'; do
+      for body in 'preserve this' ''; do
+        candidate="$title"$'\n❭ '"$body"$'\n '"$glyph"$'\n'"$rule"$'\nSWE-2 Medium'
+        assert_screen "devin multiline glyph draft styled $status: $body/$glyph" pending "$CAPS_STYLED" "$candidate" '' "devin"$'\t'"$status"
+        assert_screen "devin multiline glyph draft plain $status: $body/$glyph" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"
+      done
+    done
     for body in 'Ask Devin to build features, fix bugs, or work on your code' 'Type a message...' 'Use /skills to list available skills'; do
       candidate="$title"$'\n❭ '"$body"$'\n'"$rule"$'\nSWE-2 Medium'
       assert_screen "devin plain placeholder-like draft $status: $body" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"

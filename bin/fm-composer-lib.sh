@@ -2009,7 +2009,7 @@ _fm_composer_devin_bypass_verdict() {  # <screen> <styled> <has-identity> <ident
     return 0
   fi
   state=$(_fm_composer_classify_bare_wrap "$screen" "$styled" \
-    "$FM_COMPOSER_SELECTED_FIRST" "$((FM_COMPOSER_SCAN_PI_CLOSE - 1))")
+    "$((FM_COMPOSER_SCAN_PI_OPEN + 1))" "$((FM_COMPOSER_SCAN_PI_CLOSE - 1))")
   if [ "$state" = pending ]; then
     printf 'pending'
     return 0
