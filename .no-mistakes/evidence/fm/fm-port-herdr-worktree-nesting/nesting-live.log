@@ -1,0 +1,5 @@
+ok - real herdr E2E: with nesting on, the task becomes a Herdr worktree child of its exact launcher workspace, meta follows the moved pane, focus is kept
+viewer attached to fm-lab-fm-herdr-nesting-68075-8260 (pid 73027)
+ok - real herdr E2E: when the launcher is not the project's repository workspace, nesting falls back to the flat tab and the spawn still succeeds
+ok - real herdr E2E: teardown closes the moved task pane, its child workspace disappears, and the launcher is untouched
+ok - real herdr E2E: isolated lab session removed and default fleet session unchanged

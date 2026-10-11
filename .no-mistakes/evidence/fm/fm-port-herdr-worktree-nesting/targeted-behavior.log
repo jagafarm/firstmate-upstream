@@ -1,0 +1,10 @@
+ok - herdr worktree nesting: only an explicit on opts the home in
+ok - herdr worktree nesting: exact responses move the pane into the opened child and publish its ids
+ok - herdr worktree nesting: a pane already in this exact worktree is a proven no-op
+ok - herdr worktree nesting: a launcher herdr cannot bind as the repository parent falls back without moving the pane
+ok - herdr worktree nesting: a worktree already open in another workspace falls back with a warning
+ok - herdr worktree nesting: failed move prunes only the unused seeded pane
+ok - herdr worktree nesting: both move outcomes preserve busy, renamed, split, and unverifiable seeded panes
+ok - herdr worktree nesting: an ambiguous pane move refuses instead of recording an unprovable endpoint
+ok - herdr presentation create: exact response IDs yield one normal task pane with no workspace-close authority
+ok - fm_backend_herdr_create_task: prunes exactly the seeded default tab container_ensure identified, once the first real task tab exists
