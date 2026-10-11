@@ -1,0 +1,18 @@
+devin --permission-mode dangerous --respect-workspace-trust false --config /Users/buruchan_12
+21/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MBEGDRCR601S6H58YZ04MV/.test-devin-home/config/dev
+in.json
+buruchan_1221@M4Pro-Macmini .test-worker % devin --permission-mode dangerous --respect-worksp
+ace-trust false --config /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MBEGDRC
+R601S6H58YZ04MV/.test-devin-home/config/devin.json
+
+⠀⣴⣾⣶⡄⠀⠀⠀⠀
+⠀⠛⠿⠟⠻⣶⣾⣶⡄  Devin CLI
+⠀⣤⣶⣦⣴⠿⢿⠿⠃  [0m[38;2;124;124;124mv3000.11.3[0m
+⠀⠻⢿⠿⠃⠀⠀⠀⠀
+
+ [0m[38;2;124;124;124mPro · 83% remaining (resets in 5h 26m)[0m
+
+[0m[38;2;68;68;68m───────────────────────────────────────────────────────────────────[0m [0m[38;2;220;220;170m(bypass permissions on)[0m [0m[38;2;68;68;68m─[0m
+❭ [0m[38;2;124;124;124mAsk Devin to build features, fix bugs, or work on your code[0m
+[0m[38;2;68;68;68m─────────────────────────────────────────────────────────────────────────────────────────────[0m
+SWE-2 High                              [0m[38;2;124;124;124mPress opt+↑/opt+↓ to rate a response (thumbs up/down)[0m
