@@ -217,9 +217,8 @@
 #   operator's trust.json. Ordinary Pi worker launches never receive --approve.
 #   A missing selected executable refuses before endpoint creation, and pi-signed
 #   never falls back to pi.
-#   Devin is worker-only: --respect-workspace-trust false and a permission
-#   mode selected by config/devin-permission-mode (dangerous by default)
-#   allow unattended tools in a fresh worktree.
+#   Devin is worker-only: --respect-workspace-trust false skips workspace
+#   trust for this launch; config/devin-permission-mode selects permissions.
 #   --config points at a private per-task snapshot of the user config with
 #   lifecycle hooks appended; no global or project config is edited.
 #   config/claude-permission-mode is not mapped: Devin auto approves read-only
@@ -359,17 +358,9 @@
 #   on every spawn and relaunch, so a change reaches the next launch without a
 #   restart, and it is inherited into secondmate homes (bin/fm-config-inherit-lib.sh).
 # Devin permission mode (config/devin-permission-mode):
-#   One token selecting the permission flag every devin launch (ship, scout,
-#   and relaunch) carries. Absent or `dangerous` keeps today's
-#   `--permission-mode dangerous`; `smart` launches with `--permission-mode
-#   smart` so the worker config's allow/ask/deny rules are enforced. The
-#   token is the file's whitespace-trimmed content; any other value, or an
-#   unreadable file, refuses the spawn before any endpoint, worktree, or
-#   record exists and names the accepted values. Devin is a crewmate/scout
-#   adapter only, so the file never governs a secondmate launch.
-#   bin/fm-devin-config.sh owns the optional
-#   config/devin-permissions.worker.json overlay merged into the generated
-#   worker config's .permissions.
+#   docs/configuration.md "Devin permission mode and permission overlay"
+#   owns the operator contract. Resolve before provisioning and substitute
+#   __DEVINPERMFLAG__; bin/fm-devin-config.sh owns the overlay merge.
 # Worker tool exclusions:
 #   docs/configuration.md "Worker tool exclusions" owns config/crew-exclude-tools
 #   and its operator contract. Resolve it with bin/fm-exclude-tools-lib.sh

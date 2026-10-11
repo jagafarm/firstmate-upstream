@@ -894,7 +894,8 @@ The token is the file's content with leading and trailing whitespace removed; in
 | `smart` | `--permission-mode smart` |
 
 An absent file defaults to `dangerous`, so an unconfigured home launches exactly as it always has.
-`dangerous` auto-approves all tools, which bypasses the config's `allow`/`ask`/`deny` rules entirely; `smart` additionally auto-runs only the actions a fast model judges safe, so the rules are enforced while routine work still proceeds unattended.
+`dangerous` auto-approves all tools, which bypasses the config's `allow`/`ask`/`deny` rules entirely.
+`smart` enforces those rules and uses a fast model to approve routine actions; it can still request confirmation, so it does not guarantee unattended completion.
 Any other value, or an unreadable file, refuses the spawn before any endpoint, worktree, or task record exists, and the diagnostic names the accepted values.
 `bin/fm-spawn.sh` reads the file on every Devin spawn and relaunch, so a change takes effect at the next launch without a restart.
 
@@ -907,6 +908,7 @@ Overlay `ask`/`deny` entries are also removed from `allow` by exact string equal
 An absent file leaves the generated config untouched; a malformed, unreadable, non-regular, or symlinked file (including a dangling symlink) refuses the config write, and with it the launch, preserving any previously installed snapshot.
 Because Devin is worker-only, `worker` is the only role file read.
 [`fm-devin-config.sh`](../bin/fm-devin-config.sh) owns the overlay validation and merge mechanics.
+Neither permission file is inherited into secondmate homes; configure each home whose Devin workers need this posture.
 
 ## Worker tool exclusions (config/crew-exclude-tools)
 
