@@ -212,7 +212,7 @@ pass "real herdr E2E: when the launcher is not the project's repository workspac
 
 # --- 3. teardown removes the child workspace with the task ------------------
 
-FM_ROOT_OVERRIDE="$ROOT" FM_STATE_OVERRIDE="$NEST_HOME/state" FM_DATA_OVERRIDE="$NEST_HOME/data" \
+FM_HOME="$NEST_HOME" FM_ROOT_OVERRIDE="$ROOT" FM_STATE_OVERRIDE="$NEST_HOME/state" FM_DATA_OVERRIDE="$NEST_HOME/data" \
   FM_CONFIG_OVERRIDE="$NEST_HOME/config" \
   "$ROOT/bin/fm-teardown.sh" nestA >"$TMP_ROOT/teardown.out" 2>&1 \
   || fail "fm-teardown.sh failed for nestA"$'\n'"$(cat "$TMP_ROOT/teardown.out")"
