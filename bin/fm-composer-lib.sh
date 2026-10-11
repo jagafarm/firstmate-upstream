@@ -758,6 +758,7 @@ fm_composer_classify_content() {  # <bordered> <content> [idle_re] [idle_case] [
 # and at least 8 rule columns total; every other title remains unrecognized.
 _fm_composer_devin_bypass_separator_row() {  # <trimmed-row>
   local row=$1 rules
+  fm_composer_normalize_trim_var row
   case "$row" in
     ─*' (bypass permissions on) '*─) ;;
     *) return 1 ;;
@@ -1863,10 +1864,11 @@ EOF
     printf 'unknown'
     return 0
   fi
-  if [ "$FM_COMPOSER_SELECTED_KIND" = bare ] \
-     && [ "$FM_COMPOSER_SCAN_DEVIN_PAIR_VALID" = 1 ] \
+  if [ "$FM_COMPOSER_SCAN_PI_GLYPH" = '❭' ] \
      && [ "$FM_COMPOSER_SELECTED_FIRST" -gt "$FM_COMPOSER_SCAN_PI_OPEN" ] \
-     && [ "$FM_COMPOSER_SELECTED_LAST" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ]; then
+     && [ "$FM_COMPOSER_SELECTED_LAST" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ] \
+     && _fm_composer_devin_bypass_separator_row \
+       "$(_fm_composer_screen_row "$FM_COMPOSER_SCAN_PI_OPEN" "$plain")"; then
     _fm_composer_devin_bypass_verdict "$screen" "$styled" "$has_identity" "$identity"
     return 0
   fi

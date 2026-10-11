@@ -795,7 +795,7 @@ test_matrix_devin_bypass_pair() {
   # pair: native `devin` identity reporting idle/done makes it `empty`, every
   # weaker signal stays `unknown`.
   local rule title screen ghost typed titleclose arbitrary caps_plain_id
-  local wrapped_ghost wrapped_plain wrapped_typed bare status body candidate expected glyph separator tail
+  local wrapped_ghost wrapped_plain wrapped_typed bare status body candidate expected glyph separator tail structure
   caps_plain_id=$'styled=0\ncursor=0\nidentity=1\nrows=20'   # herdr plain-capture fallback
   rule='─────────────────────────────────────────────────────────────────'
   title='──────────────────── (bypass permissions on) ────────────────────'
@@ -863,6 +863,26 @@ test_matrix_devin_bypass_pair() {
   assert_screen "devin wrapped ghost under claude" unknown "$CAPS_STYLED" "$wrapped_ghost" '' $'claude\tidle'
   assert_screen "devin wrapped ghost under tmux cursor" empty "$CAPS_TMUX" "$wrapped_ghost" 2 probe-absent
   assert_screen "devin wrapped draft under tmux cursor" pending "$CAPS_TMUX" "$wrapped_typed" 2 probe-absent
+  for structure in \
+    $'╭─────╮\n│ ❭   │\n╰─────╯' \
+    $'┌─────┐\n│ ❭   │\n└─────┘' \
+    $'┏━━━━━┓\n┃ ❭   ┃\n┗━━━━━┛' \
+    $'╔═════╗\n║ ❭   ║\n╚═════╝' \
+    $'+-----+\n| ❭   |\n+-----+' \
+    $'┃\n┃ Type a message...'; do
+    candidate="$title"$'\n❭ preserve this\n'"$structure"$'\n'"$rule"$'\nSWE-2 Medium'
+    for status in idle done working blocked; do
+      assert_screen "devin nested structure draft styled $status: $structure" pending "$CAPS_STYLED" "$candidate" '' "devin"$'\t'"$status"
+      assert_screen "devin nested structure draft plain $status: $structure" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"
+    done
+    assert_screen "devin nested structure draft requires identity" need-identity "$CAPS_STYLED" "$candidate"
+    assert_screen "devin nested structure draft absent probe" unknown "$CAPS_STYLED" "$candidate" '' probe-absent
+    assert_screen "devin nested structure draft wrong agent" unknown "$CAPS_STYLED" "$candidate" '' $'claude\tidle'
+    assert_screen "devin nested structure draft identity blind" unknown "$CAPS_STYLED_NOID" "$candidate"
+    candidate="$title"$'\n❭ preserve this\n\n\n\n\n\n\n\n\n'"$structure"$'\n'"$rule"$'\nSWE-2 Medium'
+    assert_screen "devin oversized nested structure styled" unknown "$CAPS_STYLED" "$candidate" '' $'devin\tidle'
+    assert_screen "devin oversized nested structure plain" unknown "$caps_plain_id" "$candidate" '' $'devin\tidle'
+  done
   for separator in '──────── (bypass permissions on) ─' "$title" '────────' "$rule"; do
     for tail in '' $'\n❭' $'\n┃ ❭' $'\n╭────╮\n│ ❭  │\n╰────╯'; do
       candidate="$title"$'\n❭ preserve this\n'"$separator$tail"$'\n'"$rule"$'\nSWE-2 Medium'
