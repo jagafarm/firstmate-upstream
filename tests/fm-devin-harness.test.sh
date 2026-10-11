@@ -14,7 +14,7 @@ set -u
 . "$ROOT/bin/fm-agent-process-lib.sh"
 TMP_ROOT=$(fm_test_tmproot fm-devin-harness)
 HARNESS="$ROOT/bin/fm-harness.sh"
-unset CLAUDECODE PI_CODING_AGENT GROK_AGENT CURSOR_AGENT CURSOR_INVOKED_AS GEMINI_CLI FM_OMP_HARNESS ATLASSIAN_AGENT_TYPE ROVODEV_CLI
+unset CLAUDECODE PI_CODING_AGENT GROK_AGENT CURSOR_AGENT CURSOR_INVOKED_AS GEMINI_CLI FM_OMP_HARNESS ATLASSIAN_AGENT_TYPE ROVODEV_CLI FM_CONFIG_OVERRIDE FM_HOME
 
 mkdir -p "$TMP_ROOT/names"
 for name in devin devin-helper; do ln -s /bin/bash "$TMP_ROOT/names/$name"; done
@@ -126,3 +126,83 @@ if out=$(fm_test_run_spawn "$home" "$wt" "$fakebin" devin-sm "$proj" --secondmat
 then fail 'Devin secondmate launch accepted'; fi
 assert_contains "$out" 'crewmate/scout adapter only' 'wrong secondmate refusal'
 pass "scout launch carries Fusion, autonomy, typed brief and hooks; effort recorded only"
+
+# The opt-in config/devin-permissions.worker.json overlay merges into the
+# generated config's .permissions: entries append uniquely and overlay
+# ask/deny entries win over base allow. The writer resolves the overlay
+# through FM_CONFIG_OVERRIDE (what fm-spawn passes) and falls back to
+# $FM_HOME/config for direct use; an absent file leaves the generated config
+# untouched and a malformed or symlinked file refuses before install.
+perm_state="$TMP_ROOT/perm-state"
+mkdir -p "$perm_state"
+printf '%s\n' '{"permissions":{"allow":["Exec(git)","Exec(codex)"],"ask":["Exec(git push)"]}}' > "$TMP_ROOT/perm-user.json"
+pgen=$("$ROOT/bin/fm-busy-event.sh" arm "$perm_state" worker)
+ov_home="$TMP_ROOT/ov-home"
+mkdir -p "$ov_home/config"
+printf '%s\n' '{"allow":["Exec(bin/fm-)","Exec(git)"],"ask":["Exec(codex)","Exec(git merge)"],"deny":["Exec(sudo)"]}' > "$ov_home/config/devin-permissions.worker.json"
+FM_CONFIG_OVERRIDE="$ov_home/config" "$ROOT/bin/fm-devin-config.sh" "$perm_state" worker "$pgen" "$TMP_ROOT/perm-user.json" \
+  || fail 'config writer refused a valid overlay'
+jq -e '.permissions == {"allow":["Exec(git)","Exec(bin/fm-)"],"ask":["Exec(git push)","Exec(codex)","Exec(git merge)"],"deny":["Exec(sudo)"]}' "$perm_state/worker.devin-config.json" >/dev/null \
+  || fail "overlay merge mismatch: $(jq -c .permissions "$perm_state/worker.devin-config.json")"
+rm "$perm_state/worker.devin-config.json"
+FM_HOME="$ov_home" "$ROOT/bin/fm-devin-config.sh" "$perm_state" worker "$pgen" "$TMP_ROOT/perm-user.json" \
+  || fail 'config writer refused a valid overlay via FM_HOME'
+jq -e '.permissions.deny == ["Exec(sudo)"]' "$perm_state/worker.devin-config.json" >/dev/null \
+  || fail 'FM_HOME overlay path not honored'
+FM_HOME="$TMP_ROOT/nohome" "$ROOT/bin/fm-devin-config.sh" "$perm_state" worker "$pgen" "$TMP_ROOT/perm-user.json" \
+  || fail 'config writer failed without overlay'
+jq -e '.permissions == {"allow":["Exec(git)","Exec(codex)"],"ask":["Exec(git push)"]}' "$perm_state/worker.devin-config.json" >/dev/null \
+  || fail 'absent overlay changed generated permissions'
+bad_state="$TMP_ROOT/bad-state"
+mkdir -p "$bad_state"
+bgen=$("$ROOT/bin/fm-busy-event.sh" arm "$bad_state" worker)
+printf '%s\n' '{"allow":["x"],"extra":[]}' > "$ov_home/config/devin-permissions.worker.json"
+! FM_CONFIG_OVERRIDE="$ov_home/config" "$ROOT/bin/fm-devin-config.sh" "$bad_state" worker "$bgen" "$TMP_ROOT/perm-user.json" 2>/dev/null \
+  || fail 'overlay with a foreign key was accepted'
+assert_absent "$bad_state/worker.devin-config.json" 'malformed overlay still installed a config'
+printf '%s\n' '{"allow":"x"}' > "$ov_home/config/devin-permissions.worker.json"
+! FM_CONFIG_OVERRIDE="$ov_home/config" "$ROOT/bin/fm-devin-config.sh" "$bad_state" worker "$bgen" "$TMP_ROOT/perm-user.json" 2>/dev/null \
+  || fail 'overlay with a non-array value was accepted'
+assert_absent "$bad_state/worker.devin-config.json" 'malformed overlay still installed a config'
+printf '%s\n' '{"deny":["Exec(sudo)"]}' > "$TMP_ROOT/real-overlay.json"
+rm "$ov_home/config/devin-permissions.worker.json"
+ln -s "$TMP_ROOT/real-overlay.json" "$ov_home/config/devin-permissions.worker.json"
+! FM_CONFIG_OVERRIDE="$ov_home/config" "$ROOT/bin/fm-devin-config.sh" "$bad_state" worker "$bgen" "$TMP_ROOT/perm-user.json" 2>/dev/null \
+  || fail 'symlinked overlay was accepted'
+assert_absent "$bad_state/worker.devin-config.json" 'symlinked overlay still installed a config'
+pass "permission overlay merges uniquely, stricter wins, refuses malformed input"
+
+# config/devin-permission-mode selects the Devin launch permission flag:
+# absent or `dangerous` keeps the verified dangerous posture, `smart` swaps
+# only that flag so the config's allow/ask/deny rules are enforced, and any
+# other token refuses before any endpoint, worktree, or task record exists.
+printf 'smart\n' > "$home/config/devin-permission-mode"
+fm_test_spawn_brief "$home" devin-smart
+if ! out=$(FM_FAKE_LAUNCH_LOG="$case_dir/launch-smart" fm_test_run_spawn "$home" "$wt" "$fakebin" devin-smart "$proj" --scout --harness devin 2>&1)
+then fail "smart-mode spawn failed: $out"; fi
+launch=$(cat "$case_dir/launch-smart")
+assert_contains "$launch" '--permission-mode smart --respect-workspace-trust false' 'smart launch missing the smart flag'
+assert_not_contains "$launch" '--permission-mode dangerous' 'smart launch still carries dangerous'
+printf 'dangerous\n' > "$home/config/devin-permission-mode"
+fm_test_spawn_brief "$home" devin-expl
+if ! out=$(FM_FAKE_LAUNCH_LOG="$case_dir/launch-expl" fm_test_run_spawn "$home" "$wt" "$fakebin" devin-expl "$proj" --scout --harness devin 2>&1)
+then fail "explicit dangerous spawn failed: $out"; fi
+assert_contains "$(cat "$case_dir/launch-expl")" '--permission-mode dangerous --respect-workspace-trust false' 'explicit dangerous lost the flag'
+printf 'yolo\n' > "$home/config/devin-permission-mode"
+fm_test_spawn_brief "$home" devin-bogus
+if out=$(FM_FAKE_LAUNCH_LOG="$case_dir/launch-bogus" fm_test_run_spawn "$home" "$wt" "$fakebin" devin-bogus "$proj" --scout --harness devin 2>&1)
+then fail 'an unrecognized devin-permission-mode token launched'; fi
+assert_contains "$out" "config/devin-permission-mode holds 'yolo'" 'refusal must name the file and the token'
+assert_contains "$out" 'smart' 'refusal must list smart as an accepted value'
+assert_absent "$home/state/devin-bogus.meta" 'refusal must happen before meta is written'
+assert_absent "$case_dir/launch-bogus" 'refusal must launch nothing'
+rm "$home/config/devin-permission-mode"
+
+# The permission overlay reaches the generated worker config through a spawn.
+printf '%s\n' '{"deny":["Exec(rm -rf)"],"ask":["Exec(git push)"]}' > "$home/config/devin-permissions.worker.json"
+fm_test_spawn_brief "$home" devin-ov
+if ! out=$(FM_FAKE_LAUNCH_LOG="$case_dir/launch-ov" fm_test_run_spawn "$home" "$wt" "$fakebin" devin-ov "$proj" --scout --harness devin 2>&1)
+then fail "overlay spawn failed: $out"; fi
+jq -e '.permissions.deny == ["Exec(rm -rf)"] and .permissions.ask == ["Exec(git push)"]' "$home/state/devin-ov.devin-config.json" >/dev/null \
+  || fail 'spawned config lost the overlay merge'
+pass "config/devin-permission-mode and the permission overlay reach Devin launches"

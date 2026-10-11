@@ -217,8 +217,9 @@
 #   operator's trust.json. Ordinary Pi worker launches never receive --approve.
 #   A missing selected executable refuses before endpoint creation, and pi-signed
 #   never falls back to pi.
-#   Devin is worker-only: --permission-mode dangerous and
-#   --respect-workspace-trust false allow unattended tools in a fresh worktree.
+#   Devin is worker-only: --respect-workspace-trust false and a permission
+#   mode selected by config/devin-permission-mode (dangerous by default)
+#   allow unattended tools in a fresh worktree.
 #   --config points at a private per-task snapshot of the user config with
 #   lifecycle hooks appended; no global or project config is edited.
 #   config/claude-permission-mode is not mapped: Devin auto approves read-only
@@ -357,6 +358,18 @@
 #   worktree, or record exists and names the accepted values. The file is read
 #   on every spawn and relaunch, so a change reaches the next launch without a
 #   restart, and it is inherited into secondmate homes (bin/fm-config-inherit-lib.sh).
+# Devin permission mode (config/devin-permission-mode):
+#   One token selecting the permission flag every devin launch (ship, scout,
+#   and relaunch) carries. Absent or `dangerous` keeps today's
+#   `--permission-mode dangerous`; `smart` launches with `--permission-mode
+#   smart` so the worker config's allow/ask/deny rules are enforced. The
+#   token is the file's whitespace-trimmed content; any other value, or an
+#   unreadable file, refuses the spawn before any endpoint, worktree, or
+#   record exists and names the accepted values. Devin is a crewmate/scout
+#   adapter only, so the file never governs a secondmate launch.
+#   bin/fm-devin-config.sh owns the optional
+#   config/devin-permissions.worker.json overlay merged into the generated
+#   worker config's .permissions.
 # Worker tool exclusions:
 #   docs/configuration.md "Worker tool exclusions" owns config/crew-exclude-tools
 #   and its operator contract. Resolve it with bin/fm-exclude-tools-lib.sh
@@ -419,6 +432,7 @@
 #     __GEMINISETTINGS__ firstmate-owned per-task gemini settings file (busy-state hooks)
 #     __ROVOBIN__   resolved, rovo-verified executable for a rovo launch
 #     __DEVINBIN__ resolved Devin executable
+#     __DEVINPERMFLAG__ the devin permission flag selected by config/devin-permission-mode
 #     __DEVINCONFIG__ private per-task Devin config with lifecycle hooks
 #     __AGYBIN__    resolved, agy-verified executable for an agy launch
 # Verified per-harness turn-end hooks are installed automatically where enabled; some live outside the worktree.
@@ -2270,7 +2284,7 @@ launch_template() {
   # Devin receives the typed launch envelope after --. Its private config
   # appends native worker lifecycle hooks. Clear NO_COLOR so the shared
   # composer guard can distinguish the dim placeholder from a real draft.
-  devin) printf '%s' 'env -u CLAUDECODE -u PI_CODING_AGENT -u GROK_AGENT -u FM_PI_HARNESS -u FM_OMP_HARNESS -u ATLASSIAN_AGENT_TYPE -u ROVODEV_CLI -u NO_COLOR __DEVINBIN__ --permission-mode dangerous --respect-workspace-trust false --config __DEVINCONFIG__ __MODELFLAG__-- "$(__OPINPUT__ encode launch-brief < __BRIEF__)"' ;;
+  devin) printf '%s' 'env -u CLAUDECODE -u PI_CODING_AGENT -u GROK_AGENT -u FM_PI_HARNESS -u FM_OMP_HARNESS -u ATLASSIAN_AGENT_TYPE -u ROVODEV_CLI -u NO_COLOR __DEVINBIN__ __DEVINPERMFLAG__ --respect-workspace-trust false --config __DEVINCONFIG__ __MODELFLAG__-- "$(__OPINPUT__ encode launch-brief < __BRIEF__)"' ;;
   # Kimi Code rejects a positional prompt, so it launches bare and receives
   # only an absolute brief pointer after the TUI readiness gate below.
   # Its turn-end signal is a globally configured Stop hook plus a guarded
@@ -2422,6 +2436,29 @@ devin)
     echo "error: devin executable not found on PATH" >&2
     exit 1
   }
+  # config/devin-permission-mode (header above): resolved once per devin
+  # spawn or relaunch, before any endpoint, worktree, or record exists, so a
+  # malformed file refuses instead of launching a worker on a permission
+  # posture the captain did not choose.
+  if ! DEVIN_PERM_PRESENT=$(fm_config_source_present "$CONFIG/devin-permission-mode"); then
+    exit 1
+  fi
+  DEVIN_PERM_FLAG='--permission-mode dangerous'
+  if [ "$DEVIN_PERM_PRESENT" = 1 ]; then
+    if [ ! -f "$CONFIG/devin-permission-mode" ] || [ ! -r "$CONFIG/devin-permission-mode" ]; then
+      echo "error: config/devin-permission-mode must be a readable regular file holding one of: dangerous, smart" >&2
+      exit 1
+    fi
+    DEVIN_PERMISSION_MODE=$(tr -d '[:space:]' <"$CONFIG/devin-permission-mode" || true)
+    case "$DEVIN_PERMISSION_MODE" in
+    dangerous) ;;
+    smart) DEVIN_PERM_FLAG='--permission-mode smart' ;;
+    *)
+      echo "error: config/devin-permission-mode holds '$DEVIN_PERMISSION_MODE'; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)" >&2
+      exit 1
+      ;;
+    esac
+  fi
   ;;
 pi | pi-signed)
   PI_BIN=$(resolve_pi_executable "$HARNESS") || {
@@ -4775,7 +4812,7 @@ BUSY_GEN=
     ;;
   devin)
     if [ "$RAW_LAUNCH" -eq 0 ]; then
-      FM_KEEP_AI_TRAILERS="$KEEP_AI_TRAILERS" "$SCRIPT_DIR/fm-devin-config.sh" "$STATE_REAL" "$ID" "$BUSY_GEN" || exit 1
+      FM_KEEP_AI_TRAILERS="$KEEP_AI_TRAILERS" FM_CONFIG_OVERRIDE="$CONFIG" "$SCRIPT_DIR/fm-devin-config.sh" "$STATE_REAL" "$ID" "$BUSY_GEN" || exit 1
     fi
     ;;
   gemini)
@@ -5396,6 +5433,7 @@ gemini) LAUNCH=${LAUNCH//__GEMINISETTINGS__/"$(shell_quote "$STATE_REAL/$ID.gemi
 omp) LAUNCH=${LAUNCH//__OMPBIN__/"$(shell_quote "$OMP_BIN")"} ;;
 devin)
   LAUNCH=${LAUNCH//__DEVINBIN__/"$(shell_quote "$DEVIN_BIN")"}
+  LAUNCH=${LAUNCH//__DEVINPERMFLAG__/$DEVIN_PERM_FLAG}
   LAUNCH=${LAUNCH//__DEVINCONFIG__/"$(shell_quote "$STATE_REAL/$ID.devin-config.json")"}
   ;;
 agy) LAUNCH=${LAUNCH//__AGYBIN__/"$(shell_quote "$AGY_BIN")"} ;;

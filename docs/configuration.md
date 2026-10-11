@@ -9,7 +9,7 @@ Start with the directory layout, then use the setting reference for the behavior
 | --- | --- |
 | Firstmate's code, private files, or project location | [FM_HOME](#fm_home) and [operational home layout](#operational-home-layout-and-state) |
 | Task windows and worker tools | [Runtime backend](#runtime-backend-configbackend--fm_backend) and [harness support](#harness-support) |
-| Worker permissions, accounts, or environment | [Claude permission mode](#claude-permission-mode-configclaude-permission-mode), [worker account pin](#worker-account-pin-configclaude-account-configpi-account), [worker tool exclusions](#worker-tool-exclusions-configcrew-exclude-tools), and [worker launch environment](#worker-launch-environment-configlaunch-env-allowlist) |
+| Worker permissions, accounts, or environment | [Claude permission mode](#claude-permission-mode-configclaude-permission-mode), [Devin permission mode and permission overlay](#devin-permission-mode-and-permission-overlay-configdevin-permission-mode-configdevin-permissionsworkerjson), [worker account pin](#worker-account-pin-configclaude-account-configpi-account), [worker tool exclusions](#worker-tool-exclusions-configcrew-exclude-tools), and [worker launch environment](#worker-launch-environment-configlaunch-env-allowlist) |
 | Backlog, preferences, and memory | [Backlog backend](#backlog-backend-taskstoml--configbacklog-backend), [captain preferences](#captain-preferences-datacaptainmd--datacaptain-sharedmd), and [startup memory budget](#startup-memory-budget-configstartup-memory-budget) |
 | Supervision and presentation | [Pi supervision branch](#pi-supervision-branch), [supervision host](#supervision-host-configsupervision-host), and [Calm preference](#calm-preference-configcalm) |
 | Persistent secondmates | [Secondmate routes](#secondmate-routes-datasecondmatesmd) |
@@ -771,6 +771,7 @@ agy is likewise verified for crewmate and scout launches ONLY, refused for a sec
 devin is verified for crewmate and scout launches only; a secondmate is refused because Devin has no verified primary supervision protocol.
 
 Its private worker config disables Claude Code imports (including the captain's hooks) and, unless the home sets `config/keep-ai-trailers` (see "Commit attribution"), Devin commit attribution without editing user or project config; [`fm-devin-config.sh`](../bin/fm-devin-config.sh) owns these enforced settings and [Devin verification](verification/devin.md) owns the live evidence and observed model availability.
+The worker's permission posture is selected by `config/devin-permission-mode` and its `allow`/`ask`/`deny` rules can be extended per home by `config/devin-permissions.worker.json`; [Devin permission mode and permission overlay](#devin-permission-mode-and-permission-overlay-configdevin-permission-mode-configdevin-permissionsworkerjson) owns both contracts.
 
 ### Verification and primary supervision
 
@@ -877,6 +878,33 @@ The diagnostic names the accepted values; Firstmate never falls back to a permis
 The file is a captain-wide safety preference, so it is inherited into secondmate homes under the [`secondmate-provisioning`](../.agents/skills/secondmate-provisioning/SKILL.md) inherited-local-material contract; a secondmate's own Claude crewmates then launch on the same posture.
 
 The [Claude adapter reference](../.agents/skills/harness-adapters/references/harness/claude.md) records the permission-mode observations and the distinct startup dialogs.
+
+## Devin permission mode and permission overlay (config/devin-permission-mode, config/devin-permissions.worker.json)
+
+The optional local, gitignored `config/devin-permission-mode` selects the `--permission-mode` flag for every Devin launch: crewmates, scouts, and relaunches.
+Devin is a crewmate/scout-only adapter, so the file never governs a secondmate launch.
+
+### Accepted values and refusals
+
+The token is the file's whitespace-trimmed content.
+
+| Token | Launch permission flag |
+| --- | --- |
+| `dangerous` | `--permission-mode dangerous` |
+| `smart` | `--permission-mode smart` |
+
+An absent file defaults to `dangerous`, so an unconfigured home launches exactly as it always has.
+`dangerous` auto-approves all tools, which bypasses the config's `allow`/`ask`/`deny` rules entirely; `smart` additionally auto-runs only the actions a fast model judges safe, so the rules are enforced while routine work still proceeds unattended.
+Any other value, or an unreadable file, refuses the spawn before any endpoint, worktree, or task record exists, and the diagnostic names the accepted values.
+`bin/fm-spawn.sh` reads the file on every Devin spawn and relaunch, so a change takes effect at the next launch without a restart.
+
+### Home permission overlay
+
+The optional local, gitignored `config/devin-permissions.worker.json` extends the generated worker config's `permissions` object: a JSON object holding only `allow`, `ask`, and `deny` keys, each an array of rule strings such as `Exec(git push)`.
+Each entry is appended to the matching list uniquely, and overlay `ask`/`deny` entries are also removed from `allow`, so the stricter rule always governs.
+An absent file leaves the generated config untouched; a malformed, unreadable, or symlinked file refuses the config write, and with it the launch.
+Because Devin is worker-only, `worker` is the only role file read.
+[`fm-devin-config.sh`](../bin/fm-devin-config.sh) owns the overlay validation and merge mechanics.
 
 ## Worker tool exclusions (config/crew-exclude-tools)
 
