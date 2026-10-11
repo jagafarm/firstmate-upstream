@@ -1,0 +1,25 @@
+/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home
+
+DRIVE ship
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home
+preflight denies task=live-deny-ship
+error: spawn of live-deny-ship refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home/config/spawn-preflight
+exit=1 task_records=0
+
+DRIVE scout
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home
+preflight denies task=live-deny-scout
+error: spawn of live-deny-scout refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home/config/spawn-preflight
+exit=1 task_records=0
+
+DRIVE local
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home
+preflight denies task=live-deny-local
+error: spawn of live-deny-local refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home/config/spawn-preflight
+exit=1 task_records=0
+
+DRIVE remote
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home
+preflight denies task=live-deny-remote
+error: spawn of live-deny-remote refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-live-home/config/spawn-preflight
+exit=1 task_records=0

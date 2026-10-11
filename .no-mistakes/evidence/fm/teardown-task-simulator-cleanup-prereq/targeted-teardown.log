@@ -1,0 +1,9 @@
+ok - teardown shuts down and deletes only the task-owned fm-<id> simulator
+ok - teardown leaves every simulator alone when no fm-<id> device exists
+ok - a failed simulator delete is a warning, not a teardown failure
+ok - a pool-<n> task id never triggers simulator cleanup
+ok - non-numeric pool task ids still delete their simulator
+ok - an absent teardown-simulator-cleanup file performs no simulator cleanup
+ok - an unrecognized teardown-simulator-cleanup value performs no simulator cleanup
+ok - teardown-simulator-cleanup accepts on with whitespace stripped and case ignored
+ok - forced teardown cleans child and grandchild simulators and tolerates delete failures

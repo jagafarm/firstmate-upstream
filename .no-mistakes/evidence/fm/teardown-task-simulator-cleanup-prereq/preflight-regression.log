@@ -1,0 +1,5 @@
+ok - a failing spawn-preflight refuses before any meta or launch
+ok - a passing spawn-preflight lets the spawn proceed
+ok - failing preflight refuses scouts and local or remote secondmates before mutation
+ok - batch dispatch checks preflight for every new task
+# all fm-spawn-preflight tests passed

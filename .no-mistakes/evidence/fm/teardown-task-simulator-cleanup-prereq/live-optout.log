@@ -1,0 +1,25 @@
+/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home
+
+DRIVE switch=absent
+teardown live-optout-absent complete (window fm-lab-missing:fm-live-optout-absent, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/missing-wt)
+Backlog: live-optout-absent just finished (config/backlog-backend selects manual editing). Update /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/data/backlog.md - move live-optout-absent to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+executed_xcrun_calls=0
+task_record_removed=true
+
+DRIVE switch=off
+teardown live-optout-off complete (window fm-lab-missing:fm-live-optout-off, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/missing-wt)
+Backlog: live-optout-off just finished (config/backlog-backend selects manual editing). Update /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/data/backlog.md - move live-optout-off to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+executed_xcrun_calls=0
+task_record_removed=true
+
+DRIVE switch=yes
+teardown live-optout-yes complete (window fm-lab-missing:fm-live-optout-yes, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/missing-wt)
+Backlog: live-optout-yes just finished (config/backlog-backend selects manual editing). Update /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/data/backlog.md - move live-optout-yes to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+executed_xcrun_calls=0
+task_record_removed=true
+
+DRIVE switch=empty
+teardown live-optout-empty complete (window fm-lab-missing:fm-live-optout-empty, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/missing-wt)
+Backlog: live-optout-empty just finished (config/backlog-backend selects manual editing). Update /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4M667ASM9SG9S3WDJTQXFMF/.gate-optout-home/data/backlog.md - move live-optout-empty to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+executed_xcrun_calls=0
+task_record_removed=true

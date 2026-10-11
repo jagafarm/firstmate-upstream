@@ -1,0 +1,142 @@
+{
+  "devices" : {
+    "com.apple.CoreSimulator.SimRuntime.iOS-27-1" : [
+
+    ],
+    "com.apple.CoreSimulator.SimRuntime.iOS-26-5" : [
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/1A217695-969F-4FEF-926B-164A5DA86362\/data",
+        "dataPathSize" : 1256263680,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/1A217695-969F-4FEF-926B-164A5DA86362",
+        "udid" : "1A217695-969F-4FEF-926B-164A5DA86362",
+        "lastUsedAt" : "2026-09-29T21:26:06Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Shutdown",
+        "name" : "MT-ConnBarFlash"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/934F4154-2AAC-429C-A521-652468D6CF41\/data",
+        "dataPathSize" : 5928710144,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/934F4154-2AAC-429C-A521-652468D6CF41",
+        "udid" : "934F4154-2AAC-429C-A521-652468D6CF41",
+        "lastUsedAt" : "2026-09-30T10:47:57Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Shutdown",
+        "name" : "MT-FOCUS-CONTROLS"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/673ED189-DDFF-4A64-B77F-324721DFC833\/data",
+        "dataPathSize" : 2522669056,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/673ED189-DDFF-4A64-B77F-324721DFC833",
+        "udid" : "673ED189-DDFF-4A64-B77F-324721DFC833",
+        "lastUsedAt" : "2026-09-29T10:46:03Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Shutdown",
+        "name" : "MT-KB-Spacing"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/70E39FC4-09B8-4819-9D6B-2372547DEC7B\/data",
+        "dataPathSize" : 2174582784,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/70E39FC4-09B8-4819-9D6B-2372547DEC7B",
+        "udid" : "70E39FC4-09B8-4819-9D6B-2372547DEC7B",
+        "lastUsedAt" : "2026-10-09T01:02:03Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Shutdown",
+        "name" : "MT-MENU-CONTRAST"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/5EC1C224-26A3-48B8-829C-D42C8AFA8AD8\/data",
+        "dataPathSize" : 2346713088,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/5EC1C224-26A3-48B8-829C-D42C8AFA8AD8",
+        "udid" : "5EC1C224-26A3-48B8-829C-D42C8AFA8AD8",
+        "lastUsedAt" : "2026-10-08T06:52:06Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Shutdown",
+        "name" : "MT-MOSH-PICKER"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/3EDBC977-C331-4958-8804-B84163BD8011\/data",
+        "dataPathSize" : 2606571520,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/3EDBC977-C331-4958-8804-B84163BD8011",
+        "udid" : "3EDBC977-C331-4958-8804-B84163BD8011",
+        "lastUsedAt" : "2026-09-29T21:33:17Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro",
+        "state" : "Shutdown",
+        "name" : "MT-SEL-V3"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/F5FB1879-8304-4B6D-BB7F-D8A5A1FC6387\/data",
+        "dataPathSize" : 9251172352,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/F5FB1879-8304-4B6D-BB7F-D8A5A1FC6387",
+        "udid" : "F5FB1879-8304-4B6D-BB7F-D8A5A1FC6387",
+        "lastUsedAt" : "2026-10-11T00:37:54Z",
+        "isAvailable" : true,
+        "logPathSize" : 462848,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-17",
+        "state" : "Booted",
+        "name" : "MT-L1-Impl"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/E29A4764-6D92-442D-810E-F144A155725A\/data",
+        "dataPathSize" : 2983579648,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/E29A4764-6D92-442D-810E-F144A155725A",
+        "udid" : "E29A4764-6D92-442D-810E-F144A155725A",
+        "lastUsedAt" : "2026-09-29T11:03:33Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-14",
+        "state" : "Shutdown",
+        "name" : "MT-SEL-V3-390"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/9024F472-AC41-4484-8DAF-D37DDFE1EC75\/data",
+        "dataPathSize" : 3811172352,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/9024F472-AC41-4484-8DAF-D37DDFE1EC75",
+        "udid" : "9024F472-AC41-4484-8DAF-D37DDFE1EC75",
+        "lastUsedAt" : "2026-10-06T11:27:13Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-14",
+        "state" : "Shutdown",
+        "name" : "MT-Shot-390"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/D90B229A-7378-4282-B09E-0A954DD55D58\/data",
+        "dataPathSize" : 2465890304,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/D90B229A-7378-4282-B09E-0A954DD55D58",
+        "udid" : "D90B229A-7378-4282-B09E-0A954DD55D58",
+        "lastUsedAt" : "2026-09-29T11:10:59Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-13-mini",
+        "state" : "Shutdown",
+        "name" : "MT-SEL-V3-375"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/EA538850-C550-4378-ABF1-C1450E5D0F43\/data",
+        "dataPathSize" : 3340853248,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/EA538850-C550-4378-ABF1-C1450E5D0F43",
+        "udid" : "EA538850-C550-4378-ABF1-C1450E5D0F43",
+        "lastUsedAt" : "2026-09-30T10:59:57Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB",
+        "state" : "Shutdown",
+        "name" : "MT-PARENT-PANE-2B"
+      },
+      {
+        "dataPath" : "\/Users\/buruchan_1221\/Library\/Developer\/CoreSimulator\/Devices\/BD0520CC-67E7-43F5-920C-AC157CDC4CDA\/data",
+        "dataPathSize" : 2399920128,
+        "logPath" : "\/Users\/buruchan_1221\/Library\/Logs\/CoreSimulator\/BD0520CC-67E7-43F5-920C-AC157CDC4CDA",
+        "udid" : "BD0520CC-67E7-43F5-920C-AC157CDC4CDA",
+        "lastUsedAt" : "2026-10-09T06:10:35Z",
+        "isAvailable" : true,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M5-12GB",
+        "state" : "Shutdown",
+        "name" : "MT-Shot-iPad"
+      }
+    ]
+  }
+}
