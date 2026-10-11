@@ -200,7 +200,8 @@ fm_backend_herdr_nesting_enabled() {  # <config-dir>
 # Best-effort visual placement: open <worktree> as a Herdr worktree workspace
 # bound to the exact <parent-workspace> (never a cwd lookup, which can adopt and
 # relabel an unrelated workspace), move the live task <pane> into it as a new
-# tab, then close the child's seeded shell tab. The task process keeps running
+# tab, then attempt safe seed pruning (docs/herdr-backend.md "Worktree nesting").
+# The task process keeps running
 # across the move; only the pane and tab ids change. On success sets
 # FM_BACKEND_HERDR_NEST_WORKSPACE_ID / _TAB_ID / _PANE_ID and returns 0. Any
 # provable refusal leaves the task where it was and returns 1; callers
@@ -1978,6 +1979,13 @@ fm_backend_herdr_launcher_identity() {  # <session>
 # unforeseen path landing a live agent in a tab this function was about to
 # close.
 #
+# Verified real-herdr behavior (not modeled by the canned-response fake-CLI
+# unit tests; modeled by make_herdr_statefake): closing a workspace's LAST
+# remaining tab deletes the whole workspace, not just the tab. So this must
+# never run while the seeded default tab is still the ONLY tab in the
+# workspace - callers only invoke it once at least one other (real task) tab
+# exists alongside it, never right after workspace creation - and this
+# function independently re-checks the tab count as a second layer.
 fm_backend_herdr_workspace_prune_seeded_default_tab() {  # <session> <workspace_id> <seeded_tab_id> [focus-preserving]
   local session=$1 wsid=$2 tab_id=$3 close_mode=${4:-direct} tabs tab_count current_label pane_id agent_out agent_status
   [ -n "$tab_id" ] || return 0

@@ -170,14 +170,18 @@ A home opts in by writing `on` into local gitignored `config/herdr-worktree-nest
 Values are compared with whitespace stripped and case ignored.
 Nesting is honored only on the flat layout, so an opted-in home also writes `off` into `config/herdr-presentation-spaces`.
 It applies to crewmates and scouts, not secondmate launches.
-After `treehouse get` settles the task worktree and before the endpoint is recorded, `fm_backend_herdr_nest_task` opens that worktree with `herdr worktree open --workspace <launcher workspace>` (never a cwd lookup, which can adopt and relabel an unrelated workspace), moves the live task pane into it as a new tab, closes the child's seeded shell tab, and hands the moved pane, tab and workspace ids to the metadata write.
+After `treehouse get` settles the task worktree and before the endpoint is recorded, `fm_backend_herdr_nest_task` opens that worktree with `herdr worktree open --workspace <launcher workspace>` (never a cwd lookup, which can adopt and relabel an unrelated workspace), moves the live task pane into it as a new tab, attempts safe pruning of the child's seeded shell pane, and hands the moved pane, tab and workspace ids to the metadata write.
+Both successful moves and provably failed moves prune only the exact seed tab returned by that open response, still labeled `1`, with exactly one pane, no working native agent, and a successful idle-shell proof owned by `fm_backend_herdr_pane_idle_shell_pid` in [`bin/backends/herdr.sh`](../bin/backends/herdr.sh).
+Renamed, split, busy, background-child, or unverifiable seed panes remain untouched.
+After a provably failed move, cleanup uses the focus-preserving close path for that verified seed pane rather than closing the whole workspace, preserving any added tabs or panes.
 The task process survives the move; only its ids change.
 Herdr then shows the task indented under the launcher and reports the task branch.
 The launcher workspace must be rooted at the project's primary checkout for Herdr to bind it as the repository parent; otherwise, or when the worktree is already open elsewhere, the spawn keeps the flat task tab and warns.
 Only an ambiguous move, where the endpoint cannot be proved, stops the spawn.
-Teardown is unchanged: closing the task pane empties the child workspace, which Herdr removes.
+Teardown is unchanged: it closes the recorded task pane; Herdr removes the child workspace only if that leaves it empty, so retained seed panes or added tabs remain.
 `herdr worktree remove` is never used; Treehouse still owns the worktree.
 `tests/fm-backend-herdr-worktree-nesting-e2e.test.sh` covers nesting, the fallback, and teardown against an isolated real Herdr session.
+`tests/fm-backend-herdr.test.sh` covers seed preservation on both move outcomes and unchanged flat-layout and projection pruning.
 
 ## Presentation spaces
 
@@ -507,11 +511,12 @@ Any of these preserves the candidate and lets session startup continue with at m
 
 ## Default-tab prune safety
 
-`herdr workspace create` seeds one default tab.
+For ordinary flat-layout and presentation workspace creation, `herdr workspace create` seeds one default tab.
 Firstmate prunes it only after a real task tab exists and only when the same create response supplied the seeded tab id.
 An adopted workspace never supplies that id and can never enter the prune path, regardless of labels or tab count.
 Immediately before close, Firstmate rechecks the exact tab, expected seed label, and native agent state.
 A working seed pane is never closed.
+The separate worktree-open prune contract is owned by [Worktree nesting](#worktree-nesting).
 
 This created-versus-adopted gate is a destructive safety boundary.
 A prior label heuristic could adopt a captain-owned workspace named `firstmate` and close its live seed-shaped tab.
