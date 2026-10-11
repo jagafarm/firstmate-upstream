@@ -771,7 +771,7 @@ agy is likewise verified for crewmate and scout launches ONLY, refused for a sec
 devin is verified for crewmate and scout launches only; a secondmate is refused because Devin has no verified primary supervision protocol.
 
 Its private worker config disables Claude Code imports (including the captain's hooks) and, unless the home sets `config/keep-ai-trailers` (see "Commit attribution"), Devin commit attribution without editing user or project config; [`fm-devin-config.sh`](../bin/fm-devin-config.sh) owns these enforced settings and [Devin verification](verification/devin.md) owns the live evidence and observed model availability.
-The worker's permission posture is selected by `config/devin-permission-mode` and its `allow`/`ask`/`deny` rules can be extended per home by `config/devin-permissions.worker.json`; [Devin permission mode and permission overlay](#devin-permission-mode-and-permission-overlay-configdevin-permission-mode-configdevin-permissionsworkerjson) owns both contracts.
+See [Devin permission mode and permission overlay](#devin-permission-mode-and-permission-overlay-configdevin-permission-mode-configdevin-permissionsworkerjson) for the worker permission settings.
 
 ### Verification and primary supervision
 
@@ -886,7 +886,7 @@ Devin is a crewmate/scout-only adapter, so the file never governs a secondmate l
 
 ### Accepted values and refusals
 
-The token is the file's whitespace-trimmed content.
+The token is the file's content with leading and trailing whitespace removed; internal whitespace is invalid.
 
 | Token | Launch permission flag |
 | --- | --- |
@@ -900,9 +900,11 @@ Any other value, or an unreadable file, refuses the spawn before any endpoint, w
 
 ### Home permission overlay
 
-The optional local, gitignored `config/devin-permissions.worker.json` extends the generated worker config's `permissions` object: a JSON object holding only `allow`, `ask`, and `deny` keys, each an array of rule strings such as `Exec(git push)`.
-Each entry is appended to the matching list uniquely, and overlay `ask`/`deny` entries are also removed from `allow`, so the stricter rule always governs.
-An absent file leaves the generated config untouched; a malformed, unreadable, or symlinked file refuses the config write, and with it the launch.
+The optional local, gitignored `config/devin-permissions.worker.json` extends the generated worker config's `permissions` object: exactly one JSON object holding only `allow`, `ask`, and `deny` keys, each an array of rule strings such as `Exec(git push)`.
+Keys may be omitted, and an empty object is valid.
+Overlay entries not already in the matching source list are appended; existing rules are retained, and repeated entries within the overlay are not deduplicated.
+Overlay `ask`/`deny` entries are also removed from `allow` by exact string equality; overlapping rule patterns are left for Devin to resolve.
+An absent file leaves the generated config untouched; a malformed, unreadable, non-regular, or symlinked file (including a dangling symlink) refuses the config write, and with it the launch, preserving any previously installed snapshot.
 Because Devin is worker-only, `worker` is the only role file read.
 [`fm-devin-config.sh`](../bin/fm-devin-config.sh) owns the overlay validation and merge mechanics.
 

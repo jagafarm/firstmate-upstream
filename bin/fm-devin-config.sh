@@ -21,12 +21,10 @@
 # rejected as stale emit no notification.
 # Permission overlay (opt-in): the home config dir - $FM_CONFIG_OVERRIDE, or
 # $FM_HOME/config when the override is unset - may carry
-# devin-permissions.worker.json, an object of allow/ask/deny string arrays
-# merged into the generated config's .permissions. Entries append uniquely
-# and overlay ask/deny entries also leave allow, so the stricter rule
-# governs. Devin launches are worker-only, so the role in the filename is
-# fixed. An absent file leaves the output untouched; a malformed,
-# unreadable, or symlinked overlay refuses before the config is installed.
+# devin-permissions.worker.json. docs/configuration.md "Devin permission
+# mode and permission overlay" owns its operator contract.
+# Validation and merge finish in a temporary file before atomic installation,
+# so refusal preserves the previously installed config.
 set -eu
 case "${1:-}" in
   -h|--help)
