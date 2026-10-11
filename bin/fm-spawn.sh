@@ -2449,7 +2449,9 @@ devin)
       echo "error: config/devin-permission-mode must be a readable regular file holding one of: dangerous, smart" >&2
       exit 1
     fi
-    DEVIN_PERMISSION_MODE=$(tr -d '[:space:]' <"$CONFIG/devin-permission-mode" || true)
+    DEVIN_PERMISSION_MODE=$(cat "$CONFIG/devin-permission-mode") || exit 1
+    DEVIN_PERMISSION_MODE=${DEVIN_PERMISSION_MODE#"${DEVIN_PERMISSION_MODE%%[![:space:]]*}"}
+    DEVIN_PERMISSION_MODE=${DEVIN_PERMISSION_MODE%"${DEVIN_PERMISSION_MODE##*[![:space:]]}"}
     case "$DEVIN_PERMISSION_MODE" in
     dangerous) ;;
     smart) DEVIN_PERM_FLAG='--permission-mode smart' ;;

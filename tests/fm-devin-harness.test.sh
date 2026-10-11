@@ -202,14 +202,14 @@ pass "permission overlay merges uniquely, stricter wins, refuses malformed input
 # absent or `dangerous` keeps the verified dangerous posture, `smart` swaps
 # only that flag so the config's allow/ask/deny rules are enforced, and any
 # other token refuses before any endpoint, worktree, or task record exists.
-printf 'smart\n' > "$home/config/devin-permission-mode"
+printf '\n \t smart \t\r\n\n' > "$home/config/devin-permission-mode"
 fm_test_spawn_brief "$home" devin-smart
 if ! out=$(FM_FAKE_LAUNCH_LOG="$case_dir/launch-smart" fm_test_run_spawn "$home" "$wt" "$fakebin" devin-smart "$proj" --scout --harness devin 2>&1)
 then fail "smart-mode spawn failed: $out"; fi
 launch=$(cat "$case_dir/launch-smart")
 assert_contains "$launch" '--permission-mode smart --respect-workspace-trust false' 'smart launch missing the smart flag'
 assert_not_contains "$launch" '--permission-mode dangerous' 'smart launch still carries dangerous'
-printf 'dangerous\n' > "$home/config/devin-permission-mode"
+printf '\n \t dangerous \t\r\n\n' > "$home/config/devin-permission-mode"
 fm_test_spawn_brief "$home" devin-expl
 if ! out=$(FM_FAKE_LAUNCH_LOG="$case_dir/launch-expl" fm_test_run_spawn "$home" "$wt" "$fakebin" devin-expl "$proj" --scout --harness devin 2>&1)
 then fail "explicit dangerous spawn failed: $out"; fi
@@ -222,6 +222,14 @@ assert_contains "$out" "config/devin-permission-mode holds 'yolo'" 'refusal must
 assert_contains "$out" 'smart' 'refusal must list smart as an accepted value'
 assert_absent "$home/state/devin-bogus.meta" 'refusal must happen before meta is written'
 assert_absent "$case_dir/launch-bogus" 'refusal must launch nothing'
+for mode in 'danger ous' $'danger\nous' $'danger\tous' 'sm art' $'sm\nart' $'sm\tart' 'smart dangerous' ''; do
+  printf '%s\n' "$mode" > "$home/config/devin-permission-mode"
+  if out=$(FM_FAKE_LAUNCH_LOG="$case_dir/launch-bogus" fm_test_run_spawn "$home" "$wt" "$fakebin" devin-bogus "$proj" --scout --harness devin 2>&1)
+  then fail "an invalid devin-permission-mode launched: $mode"; fi
+  assert_contains "$out" "config/devin-permission-mode holds '$mode'" 'refusal must preserve the invalid token'
+  assert_absent "$home/state/devin-bogus.meta" 'invalid mode wrote task metadata'
+  assert_absent "$case_dir/launch-bogus" 'invalid mode launched a worker'
+done
 rm "$home/config/devin-permission-mode"
 
 # The permission overlay reaches the generated worker config through a spawn.
