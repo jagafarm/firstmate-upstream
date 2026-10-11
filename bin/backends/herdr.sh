@@ -203,8 +203,7 @@ fm_backend_herdr_nesting_enabled() {  # <config-dir>
 # tab, then close the child's seeded shell tab. The task process keeps running
 # across the move; only the pane and tab ids change. On success sets
 # FM_BACKEND_HERDR_NEST_WORKSPACE_ID / _TAB_ID / _PANE_ID and returns 0. Any
-# provable refusal leaves the task where it was (removing only a child this call
-# created and has not yet moved anything into) and returns 1; callers
+# provable refusal leaves the task where it was and returns 1; callers
 # keep the original endpoint. An ambiguous move returns 2 so callers stop
 # rather than record an unproved endpoint. Returns 3 when the pane is already in a
 # workspace for exactly this worktree, which needs no change.
@@ -238,16 +237,15 @@ fm_backend_herdr_nest_task() {  # <session> <parent-workspace> <pane> <worktree>
   new_pane=$(printf '%s' "$out" | jq -r '.result.move_result.pane.pane_id // empty' 2>/dev/null)
   new_tab=$(printf '%s' "$out" | jq -r '.result.move_result.pane.tab_id // empty' 2>/dev/null)
   if [ -z "$new_pane" ] || [ -z "$new_tab" ]; then
-    # Only close the child when the task pane is provably still in its original workspace.
     out=$(fm_backend_herdr_cli "$session" pane get "$pane" 2>/dev/null) || out=""
     if [ "$(printf '%s' "$out" | jq -r '.result.pane.workspace_id // empty' 2>/dev/null)" = "$cur_ws" ]; then
-      fm_backend_herdr_cli "$session" workspace close "$child" >/dev/null 2>&1 || true
+      fm_backend_herdr_workspace_prune_seeded_default_tab "$session" "$child" "$seeded_tab" focus-preserving || true
       return 1
     fi
     echo "error: herdr pane move for $pane failed ambiguously; the task endpoint cannot be proved" >&2
     return 2
   fi
-  fm_backend_herdr_cli "$session" tab close "$seeded_tab" >/dev/null 2>&1 || true
+  fm_backend_herdr_workspace_prune_seeded_default_tab "$session" "$child" "$seeded_tab" || true
   # shellcheck disable=SC2034  # consumed by bin/fm-spawn.sh
   FM_BACKEND_HERDR_NEST_WORKSPACE_ID=$child
   # shellcheck disable=SC2034  # consumed by bin/fm-spawn.sh
@@ -1957,26 +1955,27 @@ fm_backend_herdr_launcher_identity() {  # <session>
 # unforeseen path landing a live agent in a tab this function was about to
 # close.
 #
-# Verified real-herdr behavior (not modeled by the canned-response fake-CLI
-# unit tests; modeled by make_herdr_statefake): closing a workspace's LAST
-# remaining tab deletes the whole workspace, not just the tab. So this must
-# never run while the seeded default tab is still the ONLY tab in the
-# workspace - callers only invoke it once at least one other (real task) tab
-# exists alongside it, never right after workspace creation - and this
-# function independently re-checks the tab count as a second layer.
 fm_backend_herdr_workspace_prune_seeded_default_tab() {  # <session> <workspace_id> <seeded_tab_id> [focus-preserving]
-  local session=$1 wsid=$2 tab_id=$3 close_mode=${4:-direct} tabs tab_count current_label pane_id agent_out agent_status
+  local session=$1 wsid=$2 tab_id=$3 close_mode=${4:-direct} tabs tab_count current_label panes pane_id agent_out agent_status
   [ -n "$tab_id" ] || return 0
   tabs=$(fm_backend_herdr_cli "$session" tab list --workspace "$wsid" 2>/dev/null) || return 0
   tab_count=$(printf '%s' "$tabs" | jq -r '.result.tabs? // [] | length' 2>/dev/null)
-  case "$tab_count" in ''|*[!0-9]*|0|1) return 0 ;; esac
+  case "$tab_count" in
+    ''|*[!0-9]*|0) return 0 ;;
+    1) [ "$close_mode" = focus-preserving ] || return 0 ;;
+  esac
   current_label=$(printf '%s' "$tabs" | jq -r --arg t "$tab_id" '.result.tabs[]? | select(.tab_id == $t) | .label' 2>/dev/null)
   [ "$current_label" = "1" ] || return 0
-  pane_id=$(fm_backend_herdr_pane_for_tab "$session" "$wsid" "$tab_id") || return 0
-  [ -n "$pane_id" ] || return 0
+  panes=$(fm_backend_herdr_cli "$session" pane list --workspace "$wsid" 2>/dev/null) || return 0
+  pane_id=$(printf '%s' "$panes" | jq -er --arg tab "$tab_id" '
+    [.result.panes[]? | select(.tab_id == $tab)]
+    | select(length == 1) | .[0].pane_id
+    | select(type == "string" and length > 0)
+  ' 2>/dev/null) || return 0
   agent_out=$(fm_backend_herdr_cli "$session" agent get "$pane_id" 2>/dev/null)
   agent_status=$(printf '%s' "$agent_out" | jq -r '.result.agent.agent_status // empty' 2>/dev/null)
   [ "$agent_status" = working ] && return 0
+  fm_backend_herdr_pane_idle_shell_pid "$session" "$pane_id" >/dev/null || return 0
   if [ "$close_mode" = focus-preserving ]; then
     fm_backend_herdr_projection_close_pane_focus_preserving "$session" "$pane_id"
   else

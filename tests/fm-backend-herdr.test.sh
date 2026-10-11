@@ -166,6 +166,22 @@ SH
   printf '%s\n' "$fb"
 }
 
+make_herdr_idle_ps() {
+  cat > "$1/idle-ps" <<'SH'
+#!/usr/bin/env bash
+case "$*" in
+  '-axo pid=,ppid=') printf '424242 1\n' ;;
+  '-p 424242 -o stat=') printf 'S\n' ;;
+  *) exit 1 ;;
+esac
+SH
+  chmod +x "$1/idle-ps"
+}
+
+herdr_seed_idle_response() {
+  printf '{"result":{"type":"pane_process_info","process_info":{"pane_id":"%s","shell_pid":424242,"foreground_process_group_id":424242,"foreground_processes":[{"pid":424242,"name":"bash","argv0":"bash"}]}}}\n' "$3" > "$1/$2.out"
+}
+
 # make_herdr_statefake: a STATEFUL `herdr` stub that models the parts of herdr's
 # real container behavior the workspace-leak fix (and the default-tab-prune
 # safety fix) depend on, so a full spawn->teardown cycle can be replayed
@@ -188,6 +204,7 @@ SH
 make_herdr_statefake() {  # <dir> -> echoes fakebin dir; seeds an empty state file
   local dir=$1 fb="$1/fakebin"
   mkdir -p "$fb"
+  make_herdr_idle_ps "$dir"
   printf '{"next":1,"workspaces":[],"tabs":[],"agent_status":{}}\n' > "$dir/state.json"
   cat > "$fb/herdr" <<'SH'
 #!/usr/bin/env bash
@@ -245,6 +262,10 @@ case "$cmd $sub" in
     ;;
   "pane list")
     jq_state --arg w "$ws" '{result:{panes:[.tabs[]|select(.workspace_id==$w)|{pane_id:.pane_id, tab_id:.tab_id}]}}'
+    ;;
+  "pane process-info")
+    pane=${4:-}
+    printf '{"result":{"type":"pane_process_info","process_info":{"pane_id":"%s","shell_pid":424242,"foreground_process_group_id":424242,"foreground_processes":[{"pid":424242,"name":"bash","argv0":"bash"}]}}}\n' "$pane"
     ;;
   "pane close")
     pane=${3:-}
@@ -1931,6 +1952,7 @@ run_nest_task() {  # <dir> <parent-ws> <pane> <worktree> <label>
   local dir=$1
   shift
   PATH="$dir/fakebin:$PATH" FM_HERDR_LOG="$dir/log" FM_HERDR_RESPONSES="$dir/responses" \
+    FM_HERDR_PS_BIN="$dir/idle-ps" FM_BACKEND_HERDR_IDLE_SHELL_PROOF_POLLS=1 \
     bash -c '
       . "$0/bin/backends/herdr.sh"
       fm_backend_herdr_nest_task fmtest "$@"
@@ -1953,7 +1975,11 @@ test_nest_task_moves_pane_into_the_opened_worktree_child() {
   printf '{"result":{"already_open":false,"workspace":{"workspace_id":"w-child"},"tab":{"tab_id":"w-child:t0"}}}\n' > "$resp/3.out"
   # call 4 (workspace rename) is silent on success: no response file.
   printf '{"result":{"move_result":{"pane":{"pane_id":"p9","tab_id":"w-child:t9"}}}}\n' > "$resp/5.out"
-  # call 6 (tab close of the seeded shell tab) is silent on success.
+  printf '{"result":{"tabs":[{"tab_id":"w-child:t0","label":"1"},{"tab_id":"w-child:t9","label":"fm-nestA"}]}}\n' > "$resp/6.out"
+  printf '{"result":{"panes":[{"pane_id":"p0","tab_id":"w-child:t0"},{"pane_id":"p9","tab_id":"w-child:t9"}]}}\n' > "$resp/7.out"
+  printf '{"error":{"code":"agent_not_found"}}\n' > "$resp/8.out"
+  herdr_seed_idle_response "$resp" 9 p0
+  make_herdr_idle_ps "$dir"
   make_herdr_fakebin "$dir" >/dev/null
   out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA) \
     || fail "nest_task should succeed from complete exact responses"
@@ -1965,7 +1991,7 @@ test_nest_task_moves_pane_into_the_opened_worktree_child() {
     "nest_task did not rename the child workspace to the task label"
   assert_contains "$(cat "$log")" "pane"$'\x1f'"move"$'\x1f'"p1"$'\x1f'"--new-tab"$'\x1f'"--workspace"$'\x1f'"w-child"$'\x1f'"--label"$'\x1f'"fm-nestA"$'\x1f'"--no-focus" \
     "nest_task did not move the task pane into the child as a new tab"
-  assert_contains "$(cat "$log")" "tab"$'\x1f'"close"$'\x1f'"w-child:t0" \
+  assert_contains "$(cat "$log")" "pane"$'\x1f'"close"$'\x1f'"p0" \
     "nest_task did not close the child's seeded shell tab"
   pass "herdr worktree nesting: exact responses move the pane into the opened child and publish its ids"
 }
@@ -2023,7 +2049,7 @@ test_nest_task_falls_back_when_the_worktree_is_already_open_elsewhere() {
   pass "herdr worktree nesting: a worktree already open in another workspace falls back with a warning"
 }
 
-test_nest_task_closes_the_child_it_created_when_the_move_fails_provably() {
+test_nest_task_prunes_only_the_seeded_pane_when_the_move_fails_provably() {
   local dir log resp wt proj out status
   dir="$TMP_ROOT/nest-move-provable"; mkdir -p "$dir/responses" "$dir/wt" "$dir/proj"
   log="$dir/log"; resp="$dir/responses"; : > "$log"
@@ -2036,13 +2062,73 @@ test_nest_task_closes_the_child_it_created_when_the_move_fails_provably() {
   printf '1\n' > "$resp/5.exit"
   # The post-failure pane get proves the task pane never left its original workspace.
   printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/6.out"
+  printf '{"result":{"tabs":[{"tab_id":"w-child:t0","label":"1"},{"tab_id":"captain-tab","label":"captain"}]}}\n' > "$resp/7.out"
+  printf '{"result":{"panes":[{"pane_id":"p0","tab_id":"w-child:t0"},{"pane_id":"captain-pane","tab_id":"captain-tab"}]}}\n' > "$resp/8.out"
+  printf '{"error":{"code":"agent_not_found"}}\n' > "$resp/9.out"
+  herdr_seed_idle_response "$resp" 10 p0
+  printf '{"result":{"workspaces":[{"workspace_id":"w-parent","active_tab_id":"parent-tab","focused":true}]}}\n' > "$resp/11.out"
+  printf '{"result":{"tabs":[{"tab_id":"parent-tab","focused":true}]}}\n' > "$resp/12.out"
+  printf '{"result":{"pane":{"pane_id":"p0","tab_id":"w-child:t0","workspace_id":"w-child"}}}\n' > "$resp/13.out"
+  cp "$resp/7.out" "$resp/14.out"
+  printf '{"error":{"code":"pane_not_found"}}\n' > "$resp/16.out"
+  cp "$resp/11.out" "$resp/17.out"
+  cp "$resp/12.out" "$resp/18.out"
+  make_herdr_idle_ps "$dir"
   make_herdr_fakebin "$dir" >/dev/null
   out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA 2>&1)
   status=$?
   [ "$status" -eq 1 ] || fail "a provably failed move must fall back, got rc=$status"
-  assert_contains "$(cat "$log")" "workspace"$'\x1f'"close"$'\x1f'"w-child" \
-    "a provably failed move did not close the child workspace this call created"
-  pass "herdr worktree nesting: a provably unmoved pane falls back and the child this call opened is closed"
+  assert_contains "$(cat "$log")" $'pane\x1fclose\x1fp0' "the unused seeded pane was not pruned"
+  assert_not_contains "$(cat "$log")" $'workspace\x1fclose' "move failure must not close the whole child"
+  assert_not_contains "$(cat "$log")" $'pane\x1fclose\x1fcaptain-pane' "move failure closed the captain's added pane"
+  pass "herdr worktree nesting: failed move prunes only the unused seeded pane"
+}
+
+test_nest_task_preserves_repurposed_or_unverifiable_seeded_panes() {
+  local dir resp wt mode condition offset out status expected
+  for mode in success failure; do
+    for condition in working command background unreadable renamed split; do
+      dir="$TMP_ROOT/nest-preserve-$mode-$condition"
+      mkdir -p "$dir/responses" "$dir/wt"
+      resp="$dir/responses"; : > "$dir/log"
+      wt=$(cd "$dir/wt" && pwd -P)
+      printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/1.out"
+      printf '{"result":{"workspace":{"workspace_id":"w-parent"}}}\n' > "$resp/2.out"
+      printf '{"result":{"already_open":false,"workspace":{"workspace_id":"w-child"},"tab":{"tab_id":"w-child:t0"}}}\n' > "$resp/3.out"
+      offset=6; expected=0
+      if [ "$mode" = success ]; then
+        printf '{"result":{"move_result":{"pane":{"pane_id":"p9","tab_id":"w-child:t9"}}}}\n' > "$resp/5.out"
+      else
+        printf '1\n' > "$resp/5.exit"
+        cp "$resp/1.out" "$resp/6.out"
+        offset=7; expected=1
+      fi
+      printf '{"result":{"tabs":[{"tab_id":"w-child:t0","label":"1"},{"tab_id":"extra-tab","label":"captain"}]}}\n' > "$resp/$offset.out"
+      printf '{"result":{"panes":[{"pane_id":"p0","tab_id":"w-child:t0"},{"pane_id":"extra-pane","tab_id":"extra-tab"}]}}\n' > "$resp/$((offset + 1)).out"
+      printf '{"error":{"code":"agent_not_found"}}\n' > "$resp/$((offset + 2)).out"
+      herdr_seed_idle_response "$resp" "$((offset + 3))" p0
+      make_herdr_idle_ps "$dir"
+      case "$condition" in
+        working) printf '{"result":{"agent":{"agent_status":"working"}}}\n' > "$resp/$((offset + 2)).out" ;;
+        command) printf '{"result":{"type":"pane_process_info","process_info":{"pane_id":"p0","shell_pid":424242,"foreground_process_group_id":424243}}}\n' > "$resp/$((offset + 3)).out" ;;
+        background) printf '#!/usr/bin/env bash\nprintf "424242 1\\n424243 424242\\n"\n' > "$dir/idle-ps" ;;
+        unreadable) printf '1\n' > "$resp/$((offset + 3)).exit" ;;
+        renamed) printf '{"result":{"tabs":[{"tab_id":"w-child:t0","label":"captain"},{"tab_id":"extra-tab","label":"extra"}]}}\n' > "$resp/$offset.out" ;;
+        split) printf '{"result":{"panes":[{"pane_id":"p0","tab_id":"w-child:t0"},{"pane_id":"split-pane","tab_id":"w-child:t0"}]}}\n' > "$resp/$((offset + 1)).out" ;;
+      esac
+      make_herdr_fakebin "$dir" >/dev/null
+      out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA)
+      status=$?
+      [ "$status" -eq "$expected" ] || fail "$mode/$condition changed the endpoint return code: $status"
+      if [ "$mode" = success ]; then
+        [ "$out" = "ws=w-child tab=w-child:t9 pane=p9" ] || fail "$condition lost the moved endpoint: $out"
+      fi
+      assert_not_contains "$(cat "$dir/log")" $'pane\x1fclose' "$mode/$condition closed a preserved pane"
+      assert_not_contains "$(cat "$dir/log")" $'tab\x1fclose' "$mode/$condition closed a preserved tab"
+      assert_not_contains "$(cat "$dir/log")" $'workspace\x1fclose' "$mode/$condition closed the child workspace"
+    done
+  done
+  pass "herdr worktree nesting: both move outcomes preserve busy, renamed, split, and unverifiable seeded panes"
 }
 
 test_nest_task_refuses_an_ambiguous_move_that_cannot_prove_the_endpoint() {
@@ -2135,7 +2221,7 @@ test_projection_journal_v2_binds_and_advances_exact_endpoint() {
 }
 
 test_projection_create_uses_exact_response_ids_and_leaves_one_task_pane() {
-  local dir state log resp fb out token journal
+  local dir state log resp fb out token journal n
   dir="$TMP_ROOT/projection-create"; state="$dir/state"; mkdir -p "$dir/responses" "$state"
   log="$dir/log"; resp="$dir/responses"; : > "$log"
   printf '{"result":{"workspace":{"workspace_id":"w9"},"tab":{"tab_id":"w9:t1"},"root_pane":{"pane_id":"w9:p1"}}}\n' > "$resp/1.out"
@@ -2150,8 +2236,13 @@ test_projection_create_uses_exact_response_ids_and_leaves_one_task_pane() {
   printf '{"error":{"code":"pane_not_found"}}\n' > "$resp/9.out"
   printf '{"result":{"tabs":[{"tab_id":"w9:t2","label":"fm-task-p2","workspace_id":"w9"}]}}\n' > "$resp/10.out"
   printf '{"result":{"panes":[{"pane_id":"w9:p2","tab_id":"w9:t2"}]}}\n' > "$resp/11.out"
+  for n in 11 10 9 8 7 6; do
+    [ ! -f "$resp/$n.out" ] || mv "$resp/$n.out" "$resp/$((n + 1)).out"
+  done
+  herdr_seed_idle_response "$resp" 6 w9:p1
+  make_herdr_idle_ps "$dir"
   fb=$(make_herdr_fakebin "$dir")
-  out=$(PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_HERDR_RESPONSES="$resp" HERDR_SESSION=fmtest \
+  out=$(FM_HERDR_PS_BIN="$dir/idle-ps" PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_HERDR_RESPONSES="$resp" HERDR_SESSION=fmtest \
     bash -c '
       . "$0/bin/backends/herdr.sh"
       fm_backend_herdr_projection_focus_snapshot() { printf "captain-ws\tcaptain-tab"; }
@@ -2182,7 +2273,7 @@ test_projection_create_uses_exact_response_ids_and_leaves_one_task_pane() {
 }
 
 test_projection_create_never_closes_a_concurrent_same_label_tab() {
-  local dir log resp fb out status
+  local dir log resp fb out status n
   dir="$TMP_ROOT/projection-concurrent-tab"; mkdir -p "$dir/responses"
   log="$dir/log"; resp="$dir/responses"; : > "$log"
   printf '{"result":{"workspace":{"workspace_id":"w9"},"tab":{"tab_id":"w9:t1"},"root_pane":{"pane_id":"w9:p1"}}}\n' > "$resp/1.out"
@@ -2195,8 +2286,13 @@ test_projection_create_never_closes_a_concurrent_same_label_tab() {
   printf '{"error":{"code":"pane_not_found"}}\n' > "$resp/9.out"
   printf '{"result":{"tabs":[{"tab_id":"w9:t2","label":"fm-task-p2","workspace_id":"w9"},{"tab_id":"w9:t3","label":"fm-task-p2","workspace_id":"w9"}]}}\n' > "$resp/10.out"
   printf '{"result":{"panes":[{"pane_id":"w9:p2","tab_id":"w9:t2"},{"pane_id":"w9:p3","tab_id":"w9:t3"}]}}\n' > "$resp/11.out"
+  for n in 11 10 9 8 7 6; do
+    [ ! -f "$resp/$n.out" ] || mv "$resp/$n.out" "$resp/$((n + 1)).out"
+  done
+  herdr_seed_idle_response "$resp" 6 w9:p1
+  make_herdr_idle_ps "$dir"
   fb=$(make_herdr_fakebin "$dir")
-  out=$(PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_HERDR_RESPONSES="$resp" HERDR_SESSION=fmtest \
+  out=$(FM_HERDR_PS_BIN="$dir/idle-ps" PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_HERDR_RESPONSES="$resp" HERDR_SESSION=fmtest \
     bash -c '. "$0/bin/backends/herdr.sh"; fm_backend_herdr_projection_focus_snapshot() { printf "captain-ws\tcaptain-tab"; }; fm_backend_herdr_projection_focus_restore() { return 0; }; fm_backend_herdr_projection_create_task /tmp/proj label fm-task-p2' "$ROOT" 2>&1)
   status=$?
   [ "$status" -ne 0 ] || fail "a concurrent tab should prevent exact one-pane projection convergence"
@@ -3224,7 +3320,7 @@ test_endpoint_confirmed_gone_gates_on_structured_presence() {
 }
 
 test_projection_seeded_prune_refuses_active_tab() {
-  local dir log resp fb out status
+  local dir log resp fb out status n
   dir="$TMP_ROOT/projection-seeded-focus-active-refusal"; mkdir -p "$dir/responses"
   log="$dir/log"; resp="$dir/responses"; : > "$log"
   printf '%s\n' '{"result":{"tabs":[{"tab_id":"w9:t1","label":"1","workspace_id":"w9","focused":true},{"tab_id":"w9:t2","label":"fm-task","workspace_id":"w9","focused":false}]}}' > "$resp/1.out"
@@ -3236,8 +3332,13 @@ test_projection_seeded_prune_refuses_active_tab() {
   cp "$resp/1.out" "$resp/7.out"
   cp "$resp/4.out" "$resp/8.out"
   cp "$resp/5.out" "$resp/9.out"
+  for n in 9 8 7 6 5 4; do
+    [ ! -f "$resp/$n.out" ] || mv "$resp/$n.out" "$resp/$((n + 1)).out"
+  done
+  herdr_seed_idle_response "$resp" 4 w9:p1
+  make_herdr_idle_ps "$dir"
   fb=$(make_herdr_fakebin "$dir")
-  out=$(PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_HERDR_RESPONSES="$resp" \
+  out=$(FM_HERDR_PS_BIN="$dir/idle-ps" PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_HERDR_RESPONSES="$resp" \
     FM_FAKE_HERDR_FOREGROUND_REASON=cleared \
     bash -c '. "$0/bin/backends/herdr.sh"; fm_backend_herdr_workspace_prune_seeded_default_tab fmtest w9 w9:t1 focus-preserving' "$ROOT" 2>&1)
   status=$?
@@ -5544,6 +5645,8 @@ test_workspace_ensure_prunes_default_tab() {
   local dir log state fb raw container seeded wsid ids pane tabcount
   dir="$TMP_ROOT/prune-default"; mkdir -p "$dir"; log="$dir/log"; state="$dir/state.json"; : > "$log"
   fb=$(make_herdr_statefake "$dir")
+  local FM_HERDR_PS_BIN="$dir/idle-ps"
+  export FM_HERDR_PS_BIN
   raw=$( PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_FAKE_HERDR_STATE="$state" HERDR_SESSION=fmtest \
     bash -c '. "$0/bin/backends/herdr.sh"; fm_backend_herdr_container_ensure /proj' "$ROOT" ) \
     || fail "container_ensure failed against the stateful fake"
@@ -5578,6 +5681,8 @@ test_repeated_cycles_reuse_one_workspace_no_orphans() {
   local dir log state fb i raw container seeded wsid ids pane first_ws="" wscount total tabcount created
   dir="$TMP_ROOT/cycles"; mkdir -p "$dir"; log="$dir/log"; state="$dir/state.json"; : > "$log"
   fb=$(make_herdr_statefake "$dir")
+  local FM_HERDR_PS_BIN="$dir/idle-ps"
+  export FM_HERDR_PS_BIN
   for i in 1 2 3; do
     raw=$( PATH="$fb:$PATH" FM_HERDR_LOG="$log" FM_FAKE_HERDR_STATE="$state" HERDR_SESSION=fmtest \
       bash -c '. "$0/bin/backends/herdr.sh"; fm_backend_herdr_container_ensure /proj' "$ROOT" ) \
@@ -6142,7 +6247,8 @@ test_nest_task_moves_pane_into_the_opened_worktree_child
 test_nest_task_noops_when_the_pane_is_already_in_this_worktree
 test_nest_task_falls_back_when_the_launcher_is_not_the_repository_workspace
 test_nest_task_falls_back_when_the_worktree_is_already_open_elsewhere
-test_nest_task_closes_the_child_it_created_when_the_move_fails_provably
+test_nest_task_prunes_only_the_seeded_pane_when_the_move_fails_provably
+test_nest_task_preserves_repurposed_or_unverifiable_seeded_panes
 test_nest_task_refuses_an_ambiguous_move_that_cannot_prove_the_endpoint
 test_projection_journal_is_atomic_and_uses_128_bit_token
 test_projection_journal_v2_binds_and_advances_exact_endpoint
