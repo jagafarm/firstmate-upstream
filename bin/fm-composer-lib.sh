@@ -1989,7 +1989,7 @@ _fm_composer_classify_bare_pi_overlap() {  # <screen> <styled> <has-identity> <i
 # the exact placeholder or bare glyph to empty.
 _fm_composer_devin_bypass_verdict() {  # <screen> <styled> <has-identity> <identity>
   local screen=$1 styled=$2 has_identity=$3 identity=$4
-  local agent agent_status state
+  local agent agent_status row raw content first
   if [ "$has_identity" != 1 ]; then
     printf 'unknown'
     return 0
@@ -2008,13 +2008,24 @@ _fm_composer_devin_bypass_verdict() {  # <screen> <styled> <has-identity> <ident
     printf 'unknown'
     return 0
   fi
-  state=$(_fm_composer_classify_bare_wrap "$screen" "$styled" \
-    "$((FM_COMPOSER_SCAN_PI_OPEN + 1))" "$((FM_COMPOSER_SCAN_PI_CLOSE - 1))")
-  if [ "$state" = pending ]; then
-    printf 'pending'
-    return 0
-  fi
-  [ "$state" = empty ] || { printf 'unknown'; return 0; }
+  first=$((FM_COMPOSER_SCAN_PI_OPEN + 1))
+  row=$first
+  while [ "$row" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ]; do
+    raw=$(_fm_composer_screen_row "$row" "$screen")
+    if [ "$styled" = 1 ]; then
+      content=$(printf '%s\n' "$raw" | fm_composer_strip_ghost)
+    else
+      content=$(printf '%s\n' "$raw" | fm_composer_strip_ansi)
+    fi
+    fm_composer_normalize_trim_var content
+    if [ "$row" -eq "$first" ]; then content=${content#❭}; fi
+    fm_composer_normalize_trim_var content
+    if [ -n "$content" ]; then
+      if [ "$styled" = 1 ]; then printf 'pending'; else printf 'unknown'; fi
+      return 0
+    fi
+    row=$((row + 1))
+  done
   case "$agent_status" in
     idle|done) printf 'empty' ;;
     *) printf 'unknown' ;;

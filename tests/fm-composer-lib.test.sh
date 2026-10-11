@@ -836,6 +836,14 @@ test_matrix_devin_bypass_pair() {
     assert_screen "devin wrapped plain $status" unknown "$caps_plain_id" "$wrapped_plain" '' "devin"$'\t'"$status"
     assert_screen "devin wrapped typed $status" pending "$CAPS_STYLED" "$wrapped_typed" '' "devin"$'\t'"$status"
     assert_screen "devin wrapped typed plain $status" unknown "$caps_plain_id" "$wrapped_typed" '' "devin"$'\t'"$status"
+    for body in '| |' '│ │' '┃ ┃' '║ ║' '⣿⣿'; do
+      for candidate in \
+        "$title"$'\n❭ '"$body"$'\n'"$rule"$'\nSWE-2 Medium' \
+        "$title"$'\n❭\n '"$body"$'\n'"$rule"$'\nSWE-2 Medium'; do
+        assert_screen "devin border-like draft styled $status: $body" pending "$CAPS_STYLED" "$candidate" '' "devin"$'\t'"$status"
+        assert_screen "devin border-like draft plain $status: $body" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"
+      done
+    done
     for glyph in '❭' '❯' '›'; do
       for body in 'preserve this' ''; do
         candidate="$title"$'\n❭ '"$body"$'\n '"$glyph"$'\n'"$rule"$'\nSWE-2 Medium'
