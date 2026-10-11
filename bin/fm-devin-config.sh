@@ -70,18 +70,20 @@ if [ -n "${FM_CONFIG_OVERRIDE:-}" ]; then
 elif [ -n "${FM_HOME:-}" ]; then
   overlay=$FM_HOME/config/devin-permissions.worker.json
 fi
-if [ -n "$overlay" ] && [ -e "$overlay" ]; then
+if [ -n "$overlay" ] && { [ -e "$overlay" ] || [ -L "$overlay" ]; }; then
   [ -f "$overlay" ] && [ ! -L "$overlay" ] && [ -r "$overlay" ] \
     || { echo "error: Devin permission overlay must be a readable regular non-symlink file: $overlay" >&2; exit 1; }
-  jq -e 'type == "object" and ((keys - ["allow","ask","deny"]) | length == 0)
-    and all(.[]; type == "array" and all(.[]; type == "string"))' "$overlay" >/dev/null 2>&1 \
-    || { echo "error: Devin permission overlay must hold only allow/ask/deny string arrays: $overlay" >&2; exit 1; }
   jq --slurpfile overlay "$overlay" '
-    .permissions = (.permissions // {})
+    ($overlay
+      | if length == 1 then .[0] else error("expected one permission overlay object") end
+      | if type == "object" and ((keys - ["allow","ask","deny"]) | length == 0)
+          and all(.[]; type == "array" and all(.[]; type == "string"))
+        then . else error("permission overlay must hold only allow/ask/deny string arrays") end) as $rules
+    | .permissions = (.permissions // {})
     | if (.permissions | type) != "object" then error("permissions must be an object") else . end
     | reduce ("allow", "ask", "deny") as $k (.;
-        .permissions[$k] = ((.permissions[$k] // []) + ((($overlay[0][$k]) // []) - (.permissions[$k] // []))))
-    | .permissions.allow -= ((($overlay[0].ask) // []) + (($overlay[0].deny) // []))
+        .permissions[$k] = ((.permissions[$k] // []) + (($rules[$k] // []) - (.permissions[$k] // []))))
+    | .permissions.allow -= (($rules.ask // []) + ($rules.deny // []))
   ' "$temp" > "$temp.next"
   mv -f "$temp.next" "$temp"
 fi

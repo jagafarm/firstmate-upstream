@@ -170,6 +170,32 @@ ln -s "$TMP_ROOT/real-overlay.json" "$ov_home/config/devin-permissions.worker.js
 ! FM_CONFIG_OVERRIDE="$ov_home/config" "$ROOT/bin/fm-devin-config.sh" "$bad_state" worker "$bgen" "$TMP_ROOT/perm-user.json" 2>/dev/null \
   || fail 'symlinked overlay was accepted'
 assert_absent "$bad_state/worker.devin-config.json" 'symlinked overlay still installed a config'
+rm "$TMP_ROOT/real-overlay.json"
+for overlay_source in FM_CONFIG_OVERRIDE FM_HOME; do
+  if [ "$overlay_source" = FM_CONFIG_OVERRIDE ]; then overlay_dir="$ov_home/config"; else overlay_dir="$ov_home"; fi
+  ! env "$overlay_source=$overlay_dir" "$ROOT/bin/fm-devin-config.sh" "$bad_state" worker "$bgen" "$TMP_ROOT/perm-user.json" 2>/dev/null \
+    || fail "dangling overlay symlink was accepted via $overlay_source"
+  assert_absent "$bad_state/worker.devin-config.json" 'dangling overlay symlink still installed a config'
+done
+rm "$ov_home/config/devin-permissions.worker.json"
+for rules in '' '{} {}' '{} {"allow":["Exec(git)"]}' '{} {"ask":["Exec(git push)"]}' '{} {"deny":["Exec(rm -rf)"]}' 'null' '[]' '{"deny":[1]}'; do
+  printf '%s\n' "$rules" > "$ov_home/config/devin-permissions.worker.json"
+  for overlay_source in FM_CONFIG_OVERRIDE FM_HOME; do
+    if [ "$overlay_source" = FM_CONFIG_OVERRIDE ]; then overlay_dir="$ov_home/config"; else overlay_dir="$ov_home"; fi
+    ! env "$overlay_source=$overlay_dir" "$ROOT/bin/fm-devin-config.sh" "$bad_state" worker "$bgen" "$TMP_ROOT/perm-user.json" 2>/dev/null \
+      || fail "invalid overlay was accepted via $overlay_source: $rules"
+    assert_absent "$bad_state/worker.devin-config.json" 'invalid overlay still installed a config'
+    before=$(cat "$perm_state/worker.devin-config.json")
+    ! env "$overlay_source=$overlay_dir" "$ROOT/bin/fm-devin-config.sh" "$perm_state" worker "$pgen" "$TMP_ROOT/perm-user.json" 2>/dev/null \
+      || fail 'invalid overlay replaced an existing config'
+    [ "$(cat "$perm_state/worker.devin-config.json")" = "$before" ] || fail 'refused overlay changed the installed config'
+  done
+done
+printf '%s\n' '{}' > "$ov_home/config/devin-permissions.worker.json"
+FM_HOME="$ov_home" "$ROOT/bin/fm-devin-config.sh" "$perm_state" worker "$pgen" "$TMP_ROOT/perm-user.json" \
+  || fail 'empty overlay object was refused'
+jq -e '.permissions == {"allow":["Exec(git)","Exec(codex)"],"ask":["Exec(git push)"],"deny":[]}' "$perm_state/worker.devin-config.json" >/dev/null \
+  || fail 'empty overlay object changed permission rules'
 pass "permission overlay merges uniquely, stricter wins, refuses malformed input"
 
 # config/devin-permission-mode selects the Devin launch permission flag:
