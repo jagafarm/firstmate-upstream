@@ -1,0 +1,55 @@
+/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.xCNPVu
+error connecting to /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.xCNPVu/tmux/tmux-501/fm-lab (File name too long)
+/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.xjkYd9
+
+SCENARIO cleanup switch=absent task=live-absent
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.xjkYd9
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+error: tmux window isolated:fm-live-absent could not be read after its close, so whether it survived is unknown
+error: the tmux endpoint isolated:fm-live-absent for live-absent could not be closed, so it may still be live.
+error: stopping this cleanup without removing the task's records, so the record naming isolated:fm-live-absent is still here to reconcile from.
+error: that retention is not durable across a session start: if this task carries a backlog transition, the next session replays its pending close and removes the retained record, so reconcile the surviving endpoint yourself rather than trusting the retention.
+error: rerun teardown once the close can succeed, or rerun with --force to discard this task's records deliberately.
+/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H
+
+SCENARIO cleanup switch=absent task=live-absent
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+error: tmux window isolated:fm-live-absent could not be read after its close, so whether it survived is unknown
+error: the tmux endpoint isolated:fm-live-absent for live-absent could not be closed, so it may still be live.
+error: --force authorizes continuing past a close that failed, so this cleanup proceeds toward removing the task's records; reconcile isolated:fm-live-absent yourself, because nothing here can still be relied on to name it.
+teardown live-absent complete (window isolated:fm-live-absent, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H/already-removed-live-absent)
+Backlog: live-absent just finished (config/backlog-backend selects manual editing). Update /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H/data/backlog.md - move live-absent to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+task record removed; already-absent endpoint handled
+
+SCENARIO cleanup switch=unknown task=live-unknown
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+error: tmux window isolated:fm-live-unknown could not be read after its close, so whether it survived is unknown
+error: the tmux endpoint isolated:fm-live-unknown for live-unknown could not be closed, so it may still be live.
+error: --force authorizes continuing past a close that failed, so this cleanup proceeds toward removing the task's records; reconcile isolated:fm-live-unknown yourself, because nothing here can still be relied on to name it.
+teardown live-unknown complete (window isolated:fm-live-unknown, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H/already-removed-live-unknown)
+Backlog: live-unknown just finished (config/backlog-backend selects manual editing). Update /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H/data/backlog.md - move live-unknown to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+task record removed; already-absent endpoint handled
+
+SCENARIO cleanup switch=pool task=pool-982739
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+error: tmux window isolated:fm-pool-982739 could not be read after its close, so whether it survived is unknown
+error: the tmux endpoint isolated:fm-pool-982739 for pool-982739 could not be closed, so it may still be live.
+error: --force authorizes continuing past a close that failed, so this cleanup proceeds toward removing the task's records; reconcile isolated:fm-pool-982739 yourself, because nothing here can still be relied on to name it.
+teardown pool-982739 complete (window isolated:fm-pool-982739, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H/already-removed-pool-982739)
+Backlog: pool-982739 just finished (config/backlog-backend selects manual editing). Update /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.aGFx8H/data/backlog.md - move pool-982739 to Done, keep Done to the 10 most recent, then re-scan Queued and dispatch only work whose blockers are gone and date is due.
+task record removed; already-absent endpoint handled

@@ -1,0 +1,42 @@
+/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+
+SCENARIO ship
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+preflight received task=live-refuse; deliberate refusal
+error: spawn of live-refuse refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX/config/spawn-preflight
+exit=1
+state empty; child home absent; no endpoint/worktree creation reached
+
+SCENARIO scout
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+preflight received task=live-scout; deliberate refusal
+error: spawn of live-scout refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX/config/spawn-preflight
+exit=1
+state empty; child home absent; no endpoint/worktree creation reached
+
+SCENARIO local-secondmate
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+preflight received task=live-local; deliberate refusal
+error: spawn of live-local refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX/config/spawn-preflight
+exit=1
+state empty; child home absent; no endpoint/worktree creation reached
+
+SCENARIO remote-secondmate
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+preflight received task=live-remote; deliberate refusal
+error: spawn of live-remote refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX/config/spawn-preflight
+exit=1
+state empty; child home absent; no endpoint/worktree creation reached
+
+SCENARIO batch
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+preflight received task=live-batch-a; deliberate refusal
+error: spawn of live-batch-a refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX/config/spawn-preflight
+batch: FAILED to spawn live-batch-a (/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V)
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX
+preflight received task=live-batch-b; deliberate refusal
+error: spawn of live-batch-b refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V/.test-phase-tmp/fm-lab.uphDkX/config/spawn-preflight
+batch: FAILED to spawn live-batch-b (/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4NEFKX50HA1KHNYH2QRX94V)
+exit=1
+state empty; child home absent; no endpoint/worktree creation reached
