@@ -1,0 +1,65 @@
+[
+  {
+    "scenario": "merge retains existing settings; overlay deny removes same rule from allow",
+    "permissions": {
+      "allow": [
+        "Exec(git)",
+        "Exec(printf)"
+      ],
+      "deny": [
+        "Exec(existing)",
+        "Exec(rm -rf)"
+      ],
+      "ask": []
+    },
+    "exit": 0
+  },
+  {
+    "scenario": "malformed",
+    "exit": 2,
+    "stderr": "jq: Bad JSON in --slurpfile overlay /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/config/devin-permissions.worker.json: Unfinished JSON term at EOF at line 1, column 1",
+    "previous_snapshot_unchanged": true
+  },
+  {
+    "scenario": "extra-key",
+    "exit": 5,
+    "stderr": "jq: error (at /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/state/.check.devin-config.WorMS1:53): permission overlay must hold only allow/ask/deny string arrays",
+    "previous_snapshot_unchanged": true
+  },
+  {
+    "scenario": "wrong-type",
+    "exit": 5,
+    "stderr": "jq: error (at /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/state/.check.devin-config.QY3FZv:53): permission overlay must hold only allow/ask/deny string arrays",
+    "previous_snapshot_unchanged": true
+  },
+  {
+    "scenario": "multiple-objects",
+    "exit": 5,
+    "stderr": "jq: error (at /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/state/.check.devin-config.UFVqHb:53): expected one permission overlay object",
+    "previous_snapshot_unchanged": true
+  },
+  {
+    "scenario": "dangling-symlink",
+    "exit": 1,
+    "stderr": "error: Devin permission overlay must be a readable regular non-symlink file: /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/config/devin-permissions.worker.json",
+    "previous_snapshot_unchanged": true
+  },
+  {
+    "scenario": "absent overlay preserves source permissions",
+    "exit": 0,
+    "permissions": {
+      "allow": [
+        "Exec(git)",
+        "Exec(rm -rf)"
+      ],
+      "deny": [
+        "Exec(existing)"
+      ]
+    }
+  },
+  {
+    "scenario": "denied attempts left victim and Vault unchanged",
+    "victim_preserved": true,
+    "vault_probe_exists": false
+  }
+]

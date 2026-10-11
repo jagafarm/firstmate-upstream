@@ -1,0 +1,53 @@
+{
+  "attribution": false,
+  "read_config_from": {
+    "claude": false
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/bin/fm-busy-event.sh' apply '/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/state' 'worker' busy --gen 'live' --source devin-hook --event user-prompt-submit >/dev/null 2>&1 || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/bin/fm-busy-event.sh' apply '/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/state' 'worker' idle --gen 'live' --source devin-hook --event stop >/dev/null 2>&1 && touch '/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/state/worker.turn-ended'; true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/bin/fm-busy-event.sh' apply '/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/state' 'worker' idle --gen 'live' --source devin-hook --event session-end >/dev/null 2>&1 || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Exec(printf normal-operation)"
+    ],
+    "ask": [],
+    "deny": [
+      "Exec(git reset)",
+      "Exec(rm -rf)",
+      "Exec(git push --force)",
+      "Write(/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/work/Vault/**)"
+    ]
+  }
+}

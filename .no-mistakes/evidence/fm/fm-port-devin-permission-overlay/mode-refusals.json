@@ -1,0 +1,38 @@
+[
+  {
+    "input": "sm art",
+    "exit": 1,
+    "diagnostic": "fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/refusal-home\nerror: config/devin-permission-mode holds 'sm art'; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)",
+    "task_metadata_created": false
+  },
+  {
+    "input": "danger ous",
+    "exit": 1,
+    "diagnostic": "fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/refusal-home\nerror: config/devin-permission-mode holds 'danger ous'; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)",
+    "task_metadata_created": false
+  },
+  {
+    "input": "danger\nous",
+    "exit": 1,
+    "diagnostic": "fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/refusal-home\nerror: config/devin-permission-mode holds 'danger\nous'; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)",
+    "task_metadata_created": false
+  },
+  {
+    "input": "sm\tart",
+    "exit": 1,
+    "diagnostic": "fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/refusal-home\nerror: config/devin-permission-mode holds 'sm\tart'; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)",
+    "task_metadata_created": false
+  },
+  {
+    "input": "smart dangerous",
+    "exit": 1,
+    "diagnostic": "fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/refusal-home\nerror: config/devin-permission-mode holds 'smart dangerous'; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)",
+    "task_metadata_created": false
+  },
+  {
+    "input": "",
+    "exit": 1,
+    "diagnostic": "fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/refusal-home\nerror: config/devin-permission-mode holds ''; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)",
+    "task_metadata_created": false
+  }
+]

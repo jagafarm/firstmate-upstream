@@ -1,0 +1,103 @@
+[
+  {
+    "session": "smart",
+    "tool_calls": [
+      {
+        "tool_call_id": "exec:0#f14a672f89db4c11bc430b38572f9068",
+        "function_name": "exec",
+        "arguments": {
+          "command": "printf normal-operation"
+        }
+      }
+    ],
+    "observation": {
+      "results": [
+        {
+          "source_call_id": "exec:0#f14a672f89db4c11bc430b38572f9068",
+          "content": "Output from command in shell f4297c:\nnormal-operation\n\nExit code: 0"
+        }
+      ]
+    }
+  },
+  {
+    "session": "smart",
+    "tool_calls": [
+      {
+        "tool_call_id": "exec:0#76c396ade8c145ed8eb34a5a383277b0",
+        "function_name": "exec",
+        "arguments": {
+          "command": "git reset --hard"
+        }
+      }
+    ],
+    "observation": {
+      "results": [
+        {
+          "source_call_id": "exec:0#76c396ade8c145ed8eb34a5a383277b0",
+          "content": "Permission to run the command `git reset --hard` was denied. The user needs to approve command execution."
+        }
+      ]
+    }
+  },
+  {
+    "session": "delete",
+    "tool_calls": [
+      {
+        "tool_call_id": "exec:0#253078cf6f1b4844b74e12fe1deb4ac9",
+        "function_name": "exec",
+        "arguments": {
+          "command": "rm -rf victim"
+        }
+      }
+    ],
+    "observation": {
+      "results": [
+        {
+          "source_call_id": "exec:0#253078cf6f1b4844b74e12fe1deb4ac9",
+          "content": "Permission to run the command `rm -rf victim` was denied. The user needs to approve command execution."
+        }
+      ]
+    }
+  },
+  {
+    "session": "push",
+    "tool_calls": [
+      {
+        "tool_call_id": "exec:0#fa78cea677f04e2fb87f8a904db356bd",
+        "function_name": "exec",
+        "arguments": {
+          "command": "git push --force"
+        }
+      }
+    ],
+    "observation": {
+      "results": [
+        {
+          "source_call_id": "exec:0#fa78cea677f04e2fb87f8a904db356bd",
+          "content": "Permission to run the command `git push --force` was denied. The user needs to approve command execution."
+        }
+      ]
+    }
+  },
+  {
+    "session": "vault",
+    "tool_calls": [
+      {
+        "tool_call_id": "write:0#542d6e532a6f4e22b56fd4a53c795c8a",
+        "function_name": "write",
+        "arguments": {
+          "file_path": "/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/work/Vault/probe.md",
+          "content": "vault-write"
+        }
+      }
+    ],
+    "observation": {
+      "results": [
+        {
+          "source_call_id": "write:0#542d6e532a6f4e22b56fd4a53c795c8a",
+          "content": "Write access to '/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/work/Vault/probe.md' was denied. The user needs to grant write permission for this directory — ask them to approve the write access request or add the directory to the workspace."
+        }
+      ]
+    }
+  }
+]

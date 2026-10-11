@@ -1,0 +1,2 @@
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M4MCMF7GFWRVAGGBA33NVZAT/.live-permission-check/refusal-home
+error: config/devin-permission-mode holds 'sm art'; accepted values are: dangerous (--permission-mode dangerous, the default when the file is absent), smart (--permission-mode smart)
