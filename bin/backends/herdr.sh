@@ -203,9 +203,10 @@ fm_backend_herdr_nesting_enabled() {  # <config-dir>
 # tab, then close the child's seeded shell tab. The task process keeps running
 # across the move; only the pane and tab ids change. On success sets
 # FM_BACKEND_HERDR_NEST_WORKSPACE_ID / _TAB_ID / _PANE_ID and returns 0. Any
-# refusal leaves the task where it was (removing only a child this call
-# created and has not yet moved anything into) and returns non-zero; callers
-# keep the original endpoint. Returns 3 when the pane is already in a
+# provable refusal leaves the task where it was (removing only a child this call
+# created and has not yet moved anything into) and returns 1; callers
+# keep the original endpoint. An ambiguous move returns 2 so callers stop
+# rather than record an unproved endpoint. Returns 3 when the pane is already in a
 # workspace for exactly this worktree, which needs no change.
 fm_backend_herdr_nest_task() {  # <session> <parent-workspace> <pane> <worktree> <label>
   local session=$1 parent=$2 pane=$3 worktree=$4 label=$5 out cur_ws cur_path wt_real child seeded_tab new_pane new_tab
