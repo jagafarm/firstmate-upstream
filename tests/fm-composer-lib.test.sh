@@ -828,7 +828,7 @@ test_matrix_devin_bypass_pair() {
   wrapped_ghost="$title"$'\n❭ '"${ESC}[2m"'Ask Devin to build features,'"${ESC}[0m"$'\n  '"${ESC}[2m"'fix bugs, or work on your code'"${ESC}[0m"$'\n'"$rule"$'\nSWE-2 Medium'
   wrapped_plain="$title"$'\n❭ Ask Devin to build features,\n  fix bugs, or work on your code\n'"$rule"$'\nSWE-2 Medium'
   wrapped_typed="$title"$'\n❭ preserve this\n  wrapped draft\n'"$rule"$'\nSWE-2 Medium'
-  for status in idle done working blocked; do
+  for status in idle 'done' working blocked; do
     expected=unknown
     case "$status" in idle|done) expected=empty ;; esac
     assert_screen "devin wrapped ghost $status" "$expected" "$CAPS_STYLED" "$wrapped_ghost" '' "devin"$'\t'"$status"
@@ -871,7 +871,7 @@ test_matrix_devin_bypass_pair() {
     $'+-----+\n| ❭   |\n+-----+' \
     $'┃\n┃ Type a message...'; do
     candidate="$title"$'\n❭ preserve this\n'"$structure"$'\n'"$rule"$'\nSWE-2 Medium'
-    for status in idle done working blocked; do
+    for status in idle 'done' working blocked; do
       assert_screen "devin nested structure draft styled $status: $structure" pending "$CAPS_STYLED" "$candidate" '' "devin"$'\t'"$status"
       assert_screen "devin nested structure draft plain $status: $structure" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"
     done
@@ -886,7 +886,7 @@ test_matrix_devin_bypass_pair() {
   for separator in '──────── (bypass permissions on) ─' "$title" '────────' "$rule"; do
     for tail in '' $'\n❭' $'\n┃ ❭' $'\n╭────╮\n│ ❭  │\n╰────╯'; do
       candidate="$title"$'\n❭ preserve this\n'"$separator$tail"$'\n'"$rule"$'\nSWE-2 Medium'
-      for status in idle done working blocked; do
+      for status in idle 'done' working blocked; do
         assert_screen "devin ambiguous rule draft styled $status: $separator/$tail" unknown "$CAPS_STYLED" "$candidate" '' "devin"$'\t'"$status"
         assert_screen "devin ambiguous rule draft plain $status: $separator/$tail" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"
       done
