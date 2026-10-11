@@ -784,6 +784,64 @@ test_matrix_claude_titled_top_rule() {
   pass "matrix: claude's titled top rule proves an idle composer empty and a draft pending (#5601, #5558)"
 }
 
+test_matrix_devin_bypass_pair() {
+  # Devin 3000.11.3's bypass composer: the exact `(bypass permissions on)`
+  # titled upper rule, a bare `❭` row carrying its normal-intensity-or-dim
+  # placeholder, a solid lower rule, and a model footer. The strict separator
+  # predicate rejected the titled rule, so the pair never opened and the
+  # cursorless composer read `unknown` (or, once the generic titled-sandwich
+  # rescue learned the shape, `empty` for ANY identity - including a working
+  # agent). The real Devin frame is now proven only as Devin's own titled
+  # pair: native `devin` identity reporting idle/done makes it `empty`, every
+  # weaker signal stays `unknown`.
+  local rule title screen ghost typed titleclose arbitrary caps_plain_id
+  caps_plain_id=$'styled=0\ncursor=0\nidentity=1\nrows=20'   # herdr plain-capture fallback
+  rule='─────────────────────────────────────────────────────────────────'
+  title='──────────────────── (bypass permissions on) ────────────────────'
+  screen="$title"$'\n❭ Ask Devin to build features, fix bugs, or work on your code\n'"$rule"$'\nSWE-2 Medium'
+  ghost="$title"$'\n❭ '"${ESC}[2m"'Ask Devin to build features, fix bugs, or work on your code'"${ESC}[0m"$'\n'"$rule"$'\nSWE-2 Medium'
+  typed="$title"$'\n❭ preserve this draft\n'"$rule"$'\nSWE-2 Medium'
+  # Native idle/done Devin proves the composer empty on both capture profiles.
+  assert_screen "devin bypass idle on herdr (ansi)" empty "$CAPS_STYLED" "$ghost" '' $'devin\tidle'
+  assert_screen "devin bypass done on herdr (ansi)" empty "$CAPS_STYLED" "$ghost" '' $'devin\tdone'
+  assert_screen "devin bypass idle on plain capture" empty "$caps_plain_id" "$screen" '' $'devin\tidle'
+  assert_screen "devin bypass done on plain capture" empty "$caps_plain_id" "$screen" '' $'devin\tdone'
+  # A working or blocked native state can never prove the frame empty.
+  assert_screen "devin bypass working on herdr" unknown "$CAPS_STYLED" "$ghost" '' $'devin\tworking'
+  assert_screen "devin bypass blocked on herdr" unknown "$CAPS_STYLED" "$ghost" '' $'devin\tblocked'
+  assert_screen "devin bypass working on plain capture" unknown "$caps_plain_id" "$screen" '' $'devin\tworking'
+  # No other agent's identity may stand in for native Devin.
+  assert_screen "devin bypass under a claude identity" unknown "$CAPS_STYLED" "$ghost" '' $'claude\tidle'
+  # The fail-closed directions: an absent probe and an identity-blind backend
+  # both keep the titled pair unproven rather than reading the bare `❭` alone.
+  assert_screen "devin bypass with a dead identity probe" unknown "$CAPS_STYLED" "$ghost" '' probe-absent
+  assert_screen "devin bypass on identity-blind zellij" unknown "$CAPS_STYLED_NOID" "$ghost"
+  assert_screen "devin bypass on identity-blind plain backends" unknown "$CAPS_PLAIN" "$ghost"
+  # An identity-capable backend that has not probed yet asks for the probe.
+  assert_screen "devin bypass asks for the identity probe" need-identity "$CAPS_STYLED" "$ghost"
+  assert_screen "devin bypass asks for identity on plain capture" need-identity "$caps_plain_id" "$screen"
+  # Proven unsubmitted text stays pending under every native state.
+  assert_screen "devin bypass typed draft on herdr" pending "$CAPS_STYLED" "$typed" '' $'devin\tidle'
+  assert_screen "devin bypass typed draft on plain capture" pending "$caps_plain_id" "$typed" '' $'devin\tidle'
+  assert_screen "devin bypass typed draft while working" pending "$CAPS_STYLED" "$typed" '' $'devin\tworking'
+  # The title must be exact and in the opening position: an arbitrary title is
+  # not Devin's separator, and a Devin title closing a solid-opened pair is no
+  # devin pair either. Both keep their generic verdicts.
+  arbitrary='──────────────────── (arbitrary title) ──────────────────────────'
+  assert_screen "arbitrary title over the devin glyph" pending "$CAPS_STYLED" \
+    "$arbitrary"$'\n❭ Ask Devin to build features, fix bugs, or work on your code\n'"$rule" '' $'devin\tidle'
+  assert_screen "arbitrary title ghost on plain capture" unknown "$caps_plain_id" \
+    "$arbitrary"$'\n❭ '"${ESC}[2m"'Ask Devin to build features, fix bugs, or work on your code'"${ESC}[0m"$'\n'"$rule" '' $'devin\tidle'
+  titleclose="$rule"$'\n❭ Ask Devin to build features, fix bugs, or work on your code\n'"$title"
+  assert_screen "devin title in the closing position" unknown "$caps_plain_id" "$titleclose" '' $'devin\tidle'
+  # The cursor anchor keeps the bare-row verdicts: the devin-pair gate only
+  # binds the cursorless read.
+  assert_screen "devin bypass under tmux cursor" empty "$CAPS_TMUX" "$ghost" 1 probe-absent
+  assert_screen "devin bypass typed under tmux cursor" pending "$CAPS_TMUX" "$typed" 1 probe-absent
+  assert_screen "devin bypass asks for identity under tmux" need-identity "$CAPS_TMUX" "$ghost" 1 ''
+  pass "matrix: devin's bypass pair proves empty only under native idle/done devin identity"
+}
+
 test_matrix_kimi_bordered_shell_glyph_box() {
   # Kimi's bordered `│ > │` composer - the shape fm-spawn.sh's retired
   # spawn-local regex used to own. Now the shared owner proves it everywhere,
@@ -1036,6 +1094,7 @@ test_matrix_pi_dollar_status_footer_is_empty
 test_matrix_opencode_leftbar_signals
 test_matrix_grok_titled_bottom_border
 test_matrix_claude_titled_top_rule
+test_matrix_devin_bypass_pair
 test_matrix_kimi_bordered_shell_glyph_box
 test_matrix_claude_inside_zellij_ansi_dump
 test_strict_blank_row_divergence

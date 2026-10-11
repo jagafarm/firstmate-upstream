@@ -33,8 +33,9 @@
 #               composer. Without it, the bottom-most shape wins.
 #   identity=1  a native agent identity/state probe exists (herdr `agent get`;
 #               the tmux pi foreground-process probe). Identity is what makes
-#               Pi's blank separated composer provable; with identity=0 that
-#               shape stays `unknown`.
+#               Pi's blank separated composer and Devin's exact titled
+#               separated composer provable; with identity=0 those shapes
+#               stay `unknown`.
 #   rows=<n>    the capture's bounded row count (informational).
 #
 # THE STRICT BLANK-ROW RULE (captain decision blank-row-injection-posture,
@@ -73,6 +74,9 @@
 #                get`; the tmux foreground-process probe), because a blank
 #                region between two transcript rules is otherwise exactly the
 #                strict rule's unidentifiable blank row.
+#                Devin 3000.11.3 also draws an exact `(bypass permissions on)`
+#                upper title, a bare `❭` row, and a solid lower rule; only
+#                native idle/done Devin proves that cursorless composer empty.
 #                A separated pair that closes over a bare AGENT-GLYPH row is a
 #                different, self-proving thing: real claude 2.x draws exactly
 #                that (`─` rule, `❯`+NBSP, `─` rule), so the glyph inside the
@@ -109,8 +113,8 @@
 # (codex's `permissions: YOLO mode` startup banner) proves nothing and demotes
 # nothing.
 #
-# COVERAGE: this is exercised for the bordered box and the pi separator pair,
-# the two shapes claude 2.x renders. The opencode left bar is wired in for the
+# COVERAGE: this is exercised for the bordered box and the Pi and Devin
+# separator pairs. The opencode left bar is wired in for the
 # same treatment but is UNEXERCISED - every left-bar row this repo records
 # leads with plain text, and opencode's own prompt character is `>`, a SHELL
 # glyph deliberately outside the agent set, so no opencode shape recorded here
@@ -749,17 +753,37 @@ fm_composer_classify_content() {  # <bordered> <content> [idle_re] [idle_case] [
 # exact positive proof they require (`empty`), so unrecognized future verdicts
 # fail safe by default.
 
-# _fm_composer_pi_separator_row: a solid pi separator - nothing but `─`, at
-# least 8 columns wide. The width floor is a literal substring test so it is
-# byte-exact in every locale.
-_fm_composer_pi_separator_row() {  # <trimmed-row>
-  local row=$1
-  [ -n "$row" ] || return 1
-  [ -z "${row//─/}" ] || return 1
+# _fm_composer_devin_bypass_separator_row: Devin 3000.11.3's exact titled
+# upper separator. The title is admitted only with rule glyphs on both sides
+# and at least 8 rule columns total; every other title remains unrecognized.
+_fm_composer_devin_bypass_separator_row() {  # <trimmed-row>
+  local row=$1 rules
   case "$row" in
+    ─*' (bypass permissions on) '*─) ;;
+    *) return 1 ;;
+  esac
+  [ "${row//─/}" = ' (bypass permissions on) ' ] || return 1
+  rules=${row//' (bypass permissions on) '/}
+  case "$rules" in
     *────────*) return 0 ;;
   esac
   return 1
+}
+
+# _fm_composer_pi_separator_row: a solid pi separator - nothing but `─`, at
+# least 8 columns wide - or Devin 3000.11.3's exact titled upper separator.
+# The width floor is a literal substring test so it is byte-exact in every
+# locale. Pair validation below keeps the two harness shapes disjoint.
+_fm_composer_pi_separator_row() {  # <trimmed-row>
+  local row=$1
+  [ -n "$row" ] || return 1
+  if [ -z "${row//─/}" ]; then
+    case "$row" in
+      *────────*) return 0 ;;
+    esac
+    return 1
+  fi
+  _fm_composer_devin_bypass_separator_row "$row"
 }
 
 # _fm_composer_titled_rule_row: 0 when a trimmed row is a composer rule with a
@@ -768,10 +792,11 @@ _fm_composer_pi_separator_row() {  # <trimmed-row>
 # by collapsing to exactly the column width of <plain-rule-spaces>, the partner
 # closing rule already mapped to spaces.
 #
-# This is deliberately NOT a relaxation of _fm_composer_pi_separator_row, and
-# the two must not be merged: that predicate also feeds the pi identity
-# conjunction, so it stays strictly dashes-only. This one has the single
-# consumer _fm_composer_bare_rule_sandwich.
+# This is deliberately NOT merged into _fm_composer_pi_separator_row: that
+# predicate feeds the pi/devin identity conjunctions, so it admits only solid
+# dashes and Devin's one verified title, while an arbitrary session title
+# proves nothing about the agent behind it. This one has the single consumer
+# _fm_composer_bare_rule_sandwich.
 #
 # The row must OPEN with the same 8-column dash run the strict separator
 # requires. Width is proven by comparing canonical space strings, never by
@@ -815,6 +840,7 @@ _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
   FM_COMPOSER_SCAN_LEFTBAR_END=-1
   FM_COMPOSER_SCAN_PI_PAIR_FOUND=0
   FM_COMPOSER_SCAN_PI_PAIR_VALID=0
+  FM_COMPOSER_SCAN_DEVIN_PAIR_VALID=0
   FM_COMPOSER_SCAN_PI_OPEN=-1
   FM_COMPOSER_SCAN_PI_CLOSE=-1
   FM_COMPOSER_SCAN_PI_LAST_SEPARATOR=-1
@@ -830,6 +856,7 @@ _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
   FM_COMPOSER_SCAN_LEFTBAR_GLYPH_ROW=-1
   FM_COMPOSER_SCAN_LEFTBAR_GLYPH=
   local leftbar_start=-1 pi_open=-1 pi_lines=0 pi_max
+  local pi_open_devin=0 separator_devin=0 separator_solid=0
   local probe row_glyph row_glyph_row
   local box_glyph_row=-1 box_glyph='' pi_glyph_row=-1 pi_glyph=''
   pi_max=$FM_COMPOSER_PI_MAX_LINES
@@ -872,24 +899,34 @@ _fm_composer_scan_screen() {  # <plain-screen> <cursor-or-empty> [extract-wrap]
         row_glyph_row=$row
       fi
     fi
-    # Pi separator rows: a solid `─` rule at least 8 columns wide. A separator
-    # closes the preceding candidate and immediately opens the next, so an
-    # earlier transcript rule can never outrank the live bottom composer pair.
+    # Pi/Devin separator rows: a solid `─` rule at least 8 columns wide, or
+    # Devin 3000.11.3's exact titled upper separator. A separator closes the
+    # preceding candidate and immediately opens the next, so an earlier
+    # transcript rule can never outrank the live bottom composer pair.
     if _fm_composer_pi_separator_row "$trimmed"; then
+      separator_devin=0
+      separator_solid=0
+      if _fm_composer_devin_bypass_separator_row "$trimmed"; then separator_devin=1; fi
+      if [ -z "${trimmed//─/}" ]; then separator_solid=1; fi
       FM_COMPOSER_SCAN_PI_LAST_SEPARATOR=$row
       if [ "$pi_open" -ge 0 ]; then
         FM_COMPOSER_SCAN_PI_PAIR_FOUND=1
         FM_COMPOSER_SCAN_PI_OPEN=$pi_open
         FM_COMPOSER_SCAN_PI_CLOSE=$row
+        FM_COMPOSER_SCAN_PI_PAIR_VALID=0
+        FM_COMPOSER_SCAN_DEVIN_PAIR_VALID=0
         if [ "$pi_lines" -le "$pi_max" ]; then
-          FM_COMPOSER_SCAN_PI_PAIR_VALID=1
-        else
-          FM_COMPOSER_SCAN_PI_PAIR_VALID=0
+          if [ "$pi_open_devin" = 1 ] && [ "$separator_solid" = 1 ]; then
+            FM_COMPOSER_SCAN_DEVIN_PAIR_VALID=1
+          elif [ "$pi_open_devin" = 0 ] && [ "$separator_devin" = 0 ]; then
+            FM_COMPOSER_SCAN_PI_PAIR_VALID=1
+          fi
         fi
         FM_COMPOSER_SCAN_PI_GLYPH_ROW=$pi_glyph_row
         FM_COMPOSER_SCAN_PI_GLYPH=$pi_glyph
       fi
       pi_open=$row
+      pi_open_devin=$separator_devin
       pi_lines=0
       pi_glyph_row=-1
       pi_glyph=''
@@ -1781,7 +1818,7 @@ EOF
       if [ "$FM_COMPOSER_SCAN_PI_PAIR_FOUND" = 1 ] \
          && [ "$cy" -gt "$FM_COMPOSER_SCAN_PI_OPEN" ] \
          && [ "$cy" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ]; then
-        _fm_composer_classify_bare_pi_overlap "$screen" "$styled" "$has_identity" "$identity" "$cy"
+        _fm_composer_classify_bare_pi_overlap "$screen" "$styled" "$has_identity" "$identity" "$cy" 0
       else
         _fm_composer_classify_bare_row "$screen" "$styled" "$cy"
       fi
@@ -1837,7 +1874,7 @@ EOF
          && [ "$FM_COMPOSER_SELECTED_FIRST" -gt "$FM_COMPOSER_SCAN_PI_OPEN" ] \
          && [ "$FM_COMPOSER_SELECTED_FIRST" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ]; then
         _fm_composer_classify_bare_pi_overlap "$screen" "$styled" "$has_identity" "$identity" \
-          "$FM_COMPOSER_SELECTED_FIRST"
+          "$FM_COMPOSER_SELECTED_FIRST" 1
       else
         _fm_composer_classify_bare_row "$screen" "$styled" "$FM_COMPOSER_SELECTED_FIRST"
       fi
@@ -1917,8 +1954,12 @@ _fm_composer_classify_pi_rows() {  # <screen> <styled>
   printf 'empty'
 }
 
-_fm_composer_classify_bare_pi_overlap() {  # <screen> <styled> <has-identity> <identity> <bare-row>
-  local screen=$1 styled=$2 has_identity=$3 identity=$4 row=$5 agent
+_fm_composer_classify_bare_pi_overlap() {  # <screen> <styled> <has-identity> <identity> <bare-row> <cursorless>
+  local screen=$1 styled=$2 has_identity=$3 identity=$4 row=$5 cursorless=$6 agent
+  if [ "$cursorless" = 1 ] && [ "$FM_COMPOSER_SCAN_DEVIN_PAIR_VALID" = 1 ]; then
+    _fm_composer_devin_bypass_verdict "$screen" "$styled" "$has_identity" "$identity"
+    return 0
+  fi
   if [ "$has_identity" != 1 ]; then
     _fm_composer_classify_bare_row "$screen" "$styled" "$row"
     return 0
@@ -1937,6 +1978,44 @@ _fm_composer_classify_bare_pi_overlap() {  # <screen> <styled> <has-identity> <i
   else
     _fm_composer_classify_bare_row "$screen" "$styled" "$row"
   fi
+}
+
+# Devin 3000.11.3's bypass composer is positive proof only when its exact
+# titled upper rule and solid lower rule agree with native Devin identity.
+# Proven typed content stays pending, while only native idle/done may promote
+# the exact placeholder or bare glyph to empty.
+_fm_composer_devin_bypass_verdict() {  # <screen> <styled> <has-identity> <identity>
+  local screen=$1 styled=$2 has_identity=$3 identity=$4
+  local agent agent_status state
+  if [ "$has_identity" != 1 ]; then
+    printf 'unknown'
+    return 0
+  fi
+  if [ -z "$identity" ]; then
+    printf 'need-identity'
+    return 0
+  fi
+  if [ "$identity" = probe-absent ]; then
+    printf 'unknown'
+    return 0
+  fi
+  agent=${identity%%$'\t'*}
+  agent_status=${identity#*$'\t'}
+  if [ "$agent" != devin ] || [ "$FM_COMPOSER_SCAN_DEVIN_PAIR_VALID" != 1 ]; then
+    printf 'unknown'
+    return 0
+  fi
+  state=$(_fm_composer_classify_rows "$screen" "$styled" 0 \
+    "$((FM_COMPOSER_SCAN_PI_OPEN + 1))" "$((FM_COMPOSER_SCAN_PI_CLOSE - 1))")
+  if [ "$state" = pending ]; then
+    printf 'pending'
+    return 0
+  fi
+  [ "$state" = empty ] || { printf 'unknown'; return 0; }
+  case "$agent_status" in
+    idle|done) printf 'empty' ;;
+    *) printf 'unknown' ;;
+  esac
 }
 
 # The pi separated-shape verdict: identity + structure conjunction (herdr's

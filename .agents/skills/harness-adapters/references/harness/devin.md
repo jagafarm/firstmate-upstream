@@ -28,7 +28,7 @@ The control plane therefore invalidates the interrupted incarnation to `unknown`
 A manual keyboard cancellation outside that control plane can leave the last busy record until the next normal completion or session exit.
 An open revert picker is closed with one Esc, never Enter; the control plane does that after its own presses and refuses to type an exit command into it.
 Tool responses are not used as main-turn completion signals.
-Herdr identifies a Devin pane natively from its own screen-detection manifest, and interrupt and steering work there, but `exit` and therefore `relaunch` refuse on Herdr: its cursorless composer read answers `unknown` for Devin's frame.
+Herdr identifies a Devin pane natively from its own screen-detection manifest, and interrupt, steering, `exit`, and `relaunch` work there: the cursorless composer read proves Devin's `(bypass permissions on)` titled pair `empty` only under native `devin` identity reporting idle or done, and stays `unknown` without it.
 
 `../../../../../bin/fm-spawn.sh` owns autonomy, trust, typed brief delivery, color preservation, and the omission of the Claude permission-mode mapping.
 `../../../../../bin/fm-devin-config.sh` owns the private user-config snapshot and appended lifecycle hooks; the user and project configs remain vendor-owned.
@@ -36,7 +36,7 @@ The config snapshot can contain private settings and has mode 600.
 
 ## Composer and steering
 
-`../../../../../bin/fm-composer-lib.sh` owns the verified `❭` glyph, dim idle placeholder, active-turn composer, and interrupt hint.
+`../../../../../bin/fm-composer-lib.sh` owns the verified `❭` glyph, dim idle placeholder, active-turn composer, interrupt hint, and the `(bypass permissions on)` titled separator pair recognized only under native idle/done Devin identity.
 The shared delivery path must preserve ANSI styling: placeholder-like text surviving a styled capture remains a draft and must not be overwritten.
 The `../../../../../bin/fm-task-inbox-lib.sh` doorbell was read and acknowledged through real `fm-send` on both SWE-2 and Fusion.
 The shared slash-command settling path also handles `/quit` autocomplete.
