@@ -1818,7 +1818,7 @@ EOF
       if [ "$FM_COMPOSER_SCAN_PI_PAIR_FOUND" = 1 ] \
          && [ "$cy" -gt "$FM_COMPOSER_SCAN_PI_OPEN" ] \
          && [ "$cy" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ]; then
-        _fm_composer_classify_bare_pi_overlap "$screen" "$styled" "$has_identity" "$identity" "$cy" 0
+        _fm_composer_classify_bare_pi_overlap "$screen" "$styled" "$has_identity" "$identity" "$cy"
       else
         _fm_composer_classify_bare_row "$screen" "$styled" "$cy"
       fi
@@ -1858,6 +1858,13 @@ EOF
     printf 'unknown'
     return 0
   fi
+  if [ "$FM_COMPOSER_SELECTED_KIND" = bare ] \
+     && [ "$FM_COMPOSER_SCAN_DEVIN_PAIR_VALID" = 1 ] \
+     && [ "$FM_COMPOSER_SELECTED_FIRST" -gt "$FM_COMPOSER_SCAN_PI_OPEN" ] \
+     && [ "$FM_COMPOSER_SELECTED_LAST" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ]; then
+    _fm_composer_devin_bypass_verdict "$screen" "$styled" "$has_identity" "$identity"
+    return 0
+  fi
   case "$FM_COMPOSER_SELECTED_KIND" in
     pi)
       _fm_composer_pi_verdict "$screen" "$styled" "$has_identity" "$identity"
@@ -1874,7 +1881,7 @@ EOF
          && [ "$FM_COMPOSER_SELECTED_FIRST" -gt "$FM_COMPOSER_SCAN_PI_OPEN" ] \
          && [ "$FM_COMPOSER_SELECTED_FIRST" -lt "$FM_COMPOSER_SCAN_PI_CLOSE" ]; then
         _fm_composer_classify_bare_pi_overlap "$screen" "$styled" "$has_identity" "$identity" \
-          "$FM_COMPOSER_SELECTED_FIRST" 1
+          "$FM_COMPOSER_SELECTED_FIRST"
       else
         _fm_composer_classify_bare_row "$screen" "$styled" "$FM_COMPOSER_SELECTED_FIRST"
       fi
@@ -1954,12 +1961,8 @@ _fm_composer_classify_pi_rows() {  # <screen> <styled>
   printf 'empty'
 }
 
-_fm_composer_classify_bare_pi_overlap() {  # <screen> <styled> <has-identity> <identity> <bare-row> <cursorless>
-  local screen=$1 styled=$2 has_identity=$3 identity=$4 row=$5 cursorless=$6 agent
-  if [ "$cursorless" = 1 ] && [ "$FM_COMPOSER_SCAN_DEVIN_PAIR_VALID" = 1 ]; then
-    _fm_composer_devin_bypass_verdict "$screen" "$styled" "$has_identity" "$identity"
-    return 0
-  fi
+_fm_composer_classify_bare_pi_overlap() {  # <screen> <styled> <has-identity> <identity> <bare-row>
+  local screen=$1 styled=$2 has_identity=$3 identity=$4 row=$5 agent
   if [ "$has_identity" != 1 ]; then
     _fm_composer_classify_bare_row "$screen" "$styled" "$row"
     return 0
@@ -2005,8 +2008,8 @@ _fm_composer_devin_bypass_verdict() {  # <screen> <styled> <has-identity> <ident
     printf 'unknown'
     return 0
   fi
-  state=$(_fm_composer_classify_rows "$screen" "$styled" 0 \
-    "$((FM_COMPOSER_SCAN_PI_OPEN + 1))" "$((FM_COMPOSER_SCAN_PI_CLOSE - 1))")
+  state=$(_fm_composer_classify_bare_wrap "$screen" "$styled" \
+    "$FM_COMPOSER_SELECTED_FIRST" "$((FM_COMPOSER_SCAN_PI_CLOSE - 1))")
   if [ "$state" = pending ]; then
     printf 'pending'
     return 0

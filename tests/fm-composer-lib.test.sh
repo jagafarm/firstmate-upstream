@@ -786,7 +786,7 @@ test_matrix_claude_titled_top_rule() {
 
 test_matrix_devin_bypass_pair() {
   # Devin 3000.11.3's bypass composer: the exact `(bypass permissions on)`
-  # titled upper rule, a bare `❭` row carrying its normal-intensity-or-dim
+  # titled upper rule, a bare `❭` row carrying its dim
   # placeholder, a solid lower rule, and a model footer. The strict separator
   # predicate rejected the titled rule, so the pair never opened and the
   # cursorless composer read `unknown` (or, once the generic titled-sandwich
@@ -795,17 +795,17 @@ test_matrix_devin_bypass_pair() {
   # pair: native `devin` identity reporting idle/done makes it `empty`, every
   # weaker signal stays `unknown`.
   local rule title screen ghost typed titleclose arbitrary caps_plain_id
+  local wrapped_ghost wrapped_plain wrapped_typed bare status body candidate expected
   caps_plain_id=$'styled=0\ncursor=0\nidentity=1\nrows=20'   # herdr plain-capture fallback
   rule='─────────────────────────────────────────────────────────────────'
   title='──────────────────── (bypass permissions on) ────────────────────'
   screen="$title"$'\n❭ Ask Devin to build features, fix bugs, or work on your code\n'"$rule"$'\nSWE-2 Medium'
   ghost="$title"$'\n❭ '"${ESC}[2m"'Ask Devin to build features, fix bugs, or work on your code'"${ESC}[0m"$'\n'"$rule"$'\nSWE-2 Medium'
   typed="$title"$'\n❭ preserve this draft\n'"$rule"$'\nSWE-2 Medium'
-  # Native idle/done Devin proves the composer empty on both capture profiles.
   assert_screen "devin bypass idle on herdr (ansi)" empty "$CAPS_STYLED" "$ghost" '' $'devin\tidle'
   assert_screen "devin bypass done on herdr (ansi)" empty "$CAPS_STYLED" "$ghost" '' $'devin\tdone'
-  assert_screen "devin bypass idle on plain capture" empty "$caps_plain_id" "$screen" '' $'devin\tidle'
-  assert_screen "devin bypass done on plain capture" empty "$caps_plain_id" "$screen" '' $'devin\tdone'
+  assert_screen "devin bypass idle on plain capture" unknown "$caps_plain_id" "$screen" '' $'devin\tidle'
+  assert_screen "devin bypass done on plain capture" unknown "$caps_plain_id" "$screen" '' $'devin\tdone'
   # A working or blocked native state can never prove the frame empty.
   assert_screen "devin bypass working on herdr" unknown "$CAPS_STYLED" "$ghost" '' $'devin\tworking'
   assert_screen "devin bypass blocked on herdr" unknown "$CAPS_STYLED" "$ghost" '' $'devin\tblocked'
@@ -822,8 +822,32 @@ test_matrix_devin_bypass_pair() {
   assert_screen "devin bypass asks for identity on plain capture" need-identity "$caps_plain_id" "$screen"
   # Proven unsubmitted text stays pending under every native state.
   assert_screen "devin bypass typed draft on herdr" pending "$CAPS_STYLED" "$typed" '' $'devin\tidle'
-  assert_screen "devin bypass typed draft on plain capture" pending "$caps_plain_id" "$typed" '' $'devin\tidle'
+  assert_screen "devin bypass typed draft on plain capture" unknown "$caps_plain_id" "$typed" '' $'devin\tidle'
   assert_screen "devin bypass typed draft while working" pending "$CAPS_STYLED" "$typed" '' $'devin\tworking'
+  bare="$title"$'\n❭\n'"$rule"$'\nSWE-2 Medium'
+  wrapped_ghost="$title"$'\n❭ '"${ESC}[2m"'Ask Devin to build features,'"${ESC}[0m"$'\n  '"${ESC}[2m"'fix bugs, or work on your code'"${ESC}[0m"$'\n'"$rule"$'\nSWE-2 Medium'
+  wrapped_plain="$title"$'\n❭ Ask Devin to build features,\n  fix bugs, or work on your code\n'"$rule"$'\nSWE-2 Medium'
+  wrapped_typed="$title"$'\n❭ preserve this\n  wrapped draft\n'"$rule"$'\nSWE-2 Medium'
+  for status in idle done working blocked; do
+    expected=unknown
+    case "$status" in idle|done) expected=empty ;; esac
+    assert_screen "devin wrapped ghost $status" "$expected" "$CAPS_STYLED" "$wrapped_ghost" '' "devin"$'\t'"$status"
+    assert_screen "devin bare plain $status" "$expected" "$caps_plain_id" "$bare" '' "devin"$'\t'"$status"
+    assert_screen "devin wrapped plain $status" unknown "$caps_plain_id" "$wrapped_plain" '' "devin"$'\t'"$status"
+    assert_screen "devin wrapped typed $status" pending "$CAPS_STYLED" "$wrapped_typed" '' "devin"$'\t'"$status"
+    assert_screen "devin wrapped typed plain $status" unknown "$caps_plain_id" "$wrapped_typed" '' "devin"$'\t'"$status"
+    for body in 'Ask Devin to build features, fix bugs, or work on your code' 'Type a message...' 'Use /skills to list available skills'; do
+      candidate="$title"$'\n❭ '"$body"$'\n'"$rule"$'\nSWE-2 Medium'
+      assert_screen "devin plain placeholder-like draft $status: $body" unknown "$caps_plain_id" "$candidate" '' "devin"$'\t'"$status"
+      assert_screen "devin styled placeholder-like draft $status: $body" pending "$CAPS_STYLED" "$candidate" '' "devin"$'\t'"$status"
+    done
+  done
+  assert_screen "devin wrapped ghost without identity capability" unknown "$CAPS_STYLED_NOID" "$wrapped_ghost"
+  assert_screen "devin wrapped ghost with absent probe" unknown "$CAPS_STYLED" "$wrapped_ghost" '' probe-absent
+  assert_screen "devin wrapped ghost asks for identity" need-identity "$CAPS_STYLED" "$wrapped_ghost"
+  assert_screen "devin wrapped ghost under claude" unknown "$CAPS_STYLED" "$wrapped_ghost" '' $'claude\tidle'
+  assert_screen "devin wrapped ghost under tmux cursor" empty "$CAPS_TMUX" "$wrapped_ghost" 2 probe-absent
+  assert_screen "devin wrapped draft under tmux cursor" pending "$CAPS_TMUX" "$wrapped_typed" 2 probe-absent
   # The title must be exact and in the opening position: an arbitrary title is
   # not Devin's separator, and a Devin title closing a solid-opened pair is no
   # devin pair either. Both keep their generic verdicts.
