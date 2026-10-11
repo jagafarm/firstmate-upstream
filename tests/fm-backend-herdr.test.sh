@@ -1889,6 +1889,187 @@ test_presentation_preference_reports_three_distinct_states() {
   pass "herdr presentation: config parsing separates a deliberate choice from an unconfigured default"
 }
 
+# --- opt-in worktree nesting --------------------------------------------------
+#
+# fm_backend_herdr_nesting_enabled is the config/herdr-worktree-nesting gate and
+# fm_backend_herdr_nest_task is the flat-layout placement move bin/fm-spawn.sh
+# calls after the task worktree settles. These cases script the adapter's exact
+# CLI conversation through the canned fakebin; the real-Herdr proof lives in
+# tests/fm-backend-herdr-worktree-nesting-e2e.test.sh.
+
+nesting_enabled_verdict() {  # <config-dir> -> "on"/"off"
+  if bash -c '. "$0/bin/backends/herdr.sh"; fm_backend_herdr_nesting_enabled "$1"' "$ROOT" "$1" 2>/dev/null; then
+    printf "on\n"
+  else
+    printf "off\n"
+  fi
+}
+
+test_nesting_enabled_requires_explicit_on() {
+  local dir config
+  dir="$TMP_ROOT/nesting-enabled"; config="$dir/config"; mkdir -p "$config"
+  [ "$(nesting_enabled_verdict "$config")" = off ] || fail "an absent config file must keep nesting off"
+  printf 'on\n' > "$config/herdr-worktree-nesting"
+  [ "$(nesting_enabled_verdict "$config")" = on ] || fail "an explicit on must enable nesting"
+  printf ' ON \n\n' > "$config/herdr-worktree-nesting"
+  [ "$(nesting_enabled_verdict "$config")" = on ] || fail "case and whitespace must fold to on"
+  : > "$config/herdr-worktree-nesting"
+  [ "$(nesting_enabled_verdict "$config")" = off ] || fail "an empty file must keep nesting off"
+  printf 'off\n' > "$config/herdr-worktree-nesting"
+  [ "$(nesting_enabled_verdict "$config")" = off ] || fail "off must keep nesting off"
+  printf 'yes\n' > "$config/herdr-worktree-nesting"
+  [ "$(nesting_enabled_verdict "$config")" = off ] || fail "an unrecognized value must keep nesting off"
+  [ "$(nesting_enabled_verdict "$dir/missing-config-dir")" = off ] || fail "a missing config dir must keep nesting off"
+  pass "herdr worktree nesting: only an explicit on opts the home in"
+}
+
+# run_nest_task <dir> <parent-ws> <pane> <worktree> <label>: sources the adapter
+# under the canned fakebin in <dir>/fakebin and runs nest_task, echoing the
+# resulting FM_BACKEND_HERDR_NEST_* ids so they survive the subshell. The
+# function's own exit code is nest_task's.
+run_nest_task() {  # <dir> <parent-ws> <pane> <worktree> <label>
+  local dir=$1
+  shift
+  PATH="$dir/fakebin:$PATH" FM_HERDR_LOG="$dir/log" FM_HERDR_RESPONSES="$dir/responses" \
+    bash -c '
+      . "$0/bin/backends/herdr.sh"
+      fm_backend_herdr_nest_task fmtest "$@"
+      rc=$?
+      printf "ws=%s tab=%s pane=%s\n" \
+        "${FM_BACKEND_HERDR_NEST_WORKSPACE_ID:-}" \
+        "${FM_BACKEND_HERDR_NEST_TAB_ID:-}" \
+        "${FM_BACKEND_HERDR_NEST_PANE_ID:-}"
+      exit "$rc"
+    ' "$ROOT" "$@"
+}
+
+test_nest_task_moves_pane_into_the_opened_worktree_child() {
+  local dir log resp wt proj out
+  dir="$TMP_ROOT/nest-move"; mkdir -p "$dir/responses" "$dir/wt" "$dir/proj"
+  log="$dir/log"; resp="$dir/responses"; : > "$log"
+  wt=$(cd "$dir/wt" && pwd -P); proj=$(cd "$dir/proj" && pwd -P)
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/1.out"
+  printf '{"result":{"workspace":{"workspace_id":"w-parent","worktree":{"checkout_path":"%s"}}}}\n' "$proj" > "$resp/2.out"
+  printf '{"result":{"already_open":false,"workspace":{"workspace_id":"w-child"},"tab":{"tab_id":"w-child:t0"}}}\n' > "$resp/3.out"
+  # call 4 (workspace rename) is silent on success: no response file.
+  printf '{"result":{"move_result":{"pane":{"pane_id":"p9","tab_id":"w-child:t9"}}}}\n' > "$resp/5.out"
+  # call 6 (tab close of the seeded shell tab) is silent on success.
+  make_herdr_fakebin "$dir" >/dev/null
+  out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA) \
+    || fail "nest_task should succeed from complete exact responses"
+  [ "$out" = "ws=w-child tab=w-child:t9 pane=p9" ] \
+    || fail "nest_task did not publish the moved endpoint ids: $out"
+  assert_contains "$(cat "$log")" "worktree"$'\x1f'"open"$'\x1f'"--workspace"$'\x1f'"w-parent"$'\x1f'"--path"$'\x1f'"$wt"$'\x1f'"--no-focus" \
+    "nest_task did not open the worktree bound to the exact launcher workspace"
+  assert_contains "$(cat "$log")" "workspace"$'\x1f'"rename"$'\x1f'"w-child"$'\x1f'"fm-nestA" \
+    "nest_task did not rename the child workspace to the task label"
+  assert_contains "$(cat "$log")" "pane"$'\x1f'"move"$'\x1f'"p1"$'\x1f'"--new-tab"$'\x1f'"--workspace"$'\x1f'"w-child"$'\x1f'"--label"$'\x1f'"fm-nestA"$'\x1f'"--no-focus" \
+    "nest_task did not move the task pane into the child as a new tab"
+  assert_contains "$(cat "$log")" "tab"$'\x1f'"close"$'\x1f'"w-child:t0" \
+    "nest_task did not close the child's seeded shell tab"
+  pass "herdr worktree nesting: exact responses move the pane into the opened child and publish its ids"
+}
+
+test_nest_task_noops_when_the_pane_is_already_in_this_worktree() {
+  local dir log resp wt status
+  dir="$TMP_ROOT/nest-already"; mkdir -p "$dir/responses" "$dir/wt"
+  log="$dir/log"; resp="$dir/responses"; : > "$log"
+  wt=$(cd "$dir/wt" && pwd -P)
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-child"}}}\n' > "$resp/1.out"
+  printf '{"result":{"workspace":{"workspace_id":"w-child","worktree":{"checkout_path":"%s"}}}}\n' "$wt" > "$resp/2.out"
+  make_herdr_fakebin "$dir" >/dev/null
+  run_nest_task "$dir" w-parent p1 "$wt" fm-nestA >/dev/null
+  status=$?
+  [ "$status" -eq 3 ] || fail "a pane already in this worktree's workspace must be a no-op, got rc=$status"
+  assert_not_contains "$(cat "$log")" "worktree"$'\x1f'"open" \
+    "an already-nested pane must not re-open the worktree"
+  pass "herdr worktree nesting: a pane already in this exact worktree is a proven no-op"
+}
+
+test_nest_task_falls_back_when_the_launcher_is_not_the_repository_workspace() {
+  local dir log resp wt proj out status
+  dir="$TMP_ROOT/nest-not-rooted"; mkdir -p "$dir/responses" "$dir/wt" "$dir/proj"
+  log="$dir/log"; resp="$dir/responses"; : > "$log"
+  wt=$(cd "$dir/wt" && pwd -P); proj=$(cd "$dir/proj" && pwd -P)
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/1.out"
+  printf '{"result":{"workspace":{"workspace_id":"w-parent","worktree":{"checkout_path":"%s"}}}}\n' "$proj" > "$resp/2.out"
+  printf 'workspace w-parent is not rooted at the repository\n' > "$resp/3.err"
+  printf '1\n' > "$resp/3.exit"
+  make_herdr_fakebin "$dir" >/dev/null
+  out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA 2>&1)
+  status=$?
+  [ "$status" -eq 1 ] || fail "a refused worktree open must fall back, got rc=$status"
+  assert_not_contains "$(cat "$log")" "pane"$'\x1f'"move" \
+    "a refused worktree open must not move the task pane"
+  pass "herdr worktree nesting: a launcher herdr cannot bind as the repository parent falls back without moving the pane"
+}
+
+test_nest_task_falls_back_when_the_worktree_is_already_open_elsewhere() {
+  local dir log resp wt proj out status
+  dir="$TMP_ROOT/nest-open-elsewhere"; mkdir -p "$dir/responses" "$dir/wt" "$dir/proj"
+  log="$dir/log"; resp="$dir/responses"; : > "$log"
+  wt=$(cd "$dir/wt" && pwd -P); proj=$(cd "$dir/proj" && pwd -P)
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/1.out"
+  printf '{"result":{"workspace":{"workspace_id":"w-parent","worktree":{"checkout_path":"%s"}}}}\n' "$proj" > "$resp/2.out"
+  printf '{"result":{"already_open":true,"workspace":{"workspace_id":"w-elsewhere"},"tab":{"tab_id":"w-elsewhere:t0"}}}\n' > "$resp/3.out"
+  make_herdr_fakebin "$dir" >/dev/null
+  out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA 2>&1)
+  status=$?
+  [ "$status" -eq 1 ] || fail "a worktree open elsewhere must fall back, got rc=$status"
+  assert_contains "$out" "already open in another workspace" \
+    "the already-open fallback did not warn"
+  assert_not_contains "$(cat "$log")" "pane"$'\x1f'"move" \
+    "an already-open worktree must not move the task pane"
+  pass "herdr worktree nesting: a worktree already open in another workspace falls back with a warning"
+}
+
+test_nest_task_closes_the_child_it_created_when_the_move_fails_provably() {
+  local dir log resp wt proj out status
+  dir="$TMP_ROOT/nest-move-provable"; mkdir -p "$dir/responses" "$dir/wt" "$dir/proj"
+  log="$dir/log"; resp="$dir/responses"; : > "$log"
+  wt=$(cd "$dir/wt" && pwd -P); proj=$(cd "$dir/proj" && pwd -P)
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/1.out"
+  printf '{"result":{"workspace":{"workspace_id":"w-parent","worktree":{"checkout_path":"%s"}}}}\n' "$proj" > "$resp/2.out"
+  printf '{"result":{"already_open":false,"workspace":{"workspace_id":"w-child"},"tab":{"tab_id":"w-child:t0"}}}\n' > "$resp/3.out"
+  # call 4 (workspace rename) is silent on success.
+  printf 'pane move refused\n' > "$resp/5.err"
+  printf '1\n' > "$resp/5.exit"
+  # The post-failure pane get proves the task pane never left its original workspace.
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/6.out"
+  make_herdr_fakebin "$dir" >/dev/null
+  out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA 2>&1)
+  status=$?
+  [ "$status" -eq 1 ] || fail "a provably failed move must fall back, got rc=$status"
+  assert_contains "$(cat "$log")" "workspace"$'\x1f'"close"$'\x1f'"w-child" \
+    "a provably failed move did not close the child workspace this call created"
+  pass "herdr worktree nesting: a provably unmoved pane falls back and the child this call opened is closed"
+}
+
+test_nest_task_refuses_an_ambiguous_move_that_cannot_prove_the_endpoint() {
+  local dir log resp wt proj out status
+  dir="$TMP_ROOT/nest-move-ambiguous"; mkdir -p "$dir/responses" "$dir/wt" "$dir/proj"
+  log="$dir/log"; resp="$dir/responses"; : > "$log"
+  wt=$(cd "$dir/wt" && pwd -P); proj=$(cd "$dir/proj" && pwd -P)
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-parent"}}}\n' > "$resp/1.out"
+  printf '{"result":{"workspace":{"workspace_id":"w-parent","worktree":{"checkout_path":"%s"}}}}\n' "$proj" > "$resp/2.out"
+  printf '{"result":{"already_open":false,"workspace":{"workspace_id":"w-child"},"tab":{"tab_id":"w-child:t0"}}}\n' > "$resp/3.out"
+  # call 4 (workspace rename) is silent on success.
+  printf 'pane move refused\n' > "$resp/5.err"
+  printf '1\n' > "$resp/5.exit"
+  # The pane is NOT in its original workspace and its new home is unreadable
+  # from the failed response, so the endpoint cannot be proved either way.
+  printf '{"result":{"pane":{"pane_id":"p1","workspace_id":"w-child"}}}\n' > "$resp/6.out"
+  make_herdr_fakebin "$dir" >/dev/null
+  out=$(run_nest_task "$dir" w-parent p1 "$wt" fm-nestA 2>&1)
+  status=$?
+  [ "$status" -eq 2 ] || fail "an ambiguous move must refuse with rc=2, got rc=$status"
+  assert_contains "$out" "endpoint cannot be proved" \
+    "the ambiguous refusal did not name the unprovable endpoint"
+  assert_not_contains "$(cat "$log")" "workspace"$'\x1f'"close" \
+    "an ambiguous move must not close a workspace the pane may now live in"
+  pass "herdr worktree nesting: an ambiguous pane move refuses instead of recording an unprovable endpoint"
+}
+
 test_projection_journal_is_atomic_and_uses_128_bit_token() {
   local dir state out token parsed status
   dir="$TMP_ROOT/projection-journal"; state="$dir/state"; mkdir -p "$state"
@@ -5956,6 +6137,13 @@ test_presentation_running_server_release_is_load_bearing
 test_release_floor_verdict_matches_the_measured_releases
 test_release_floor_verdict_survives_losing_either_signal
 test_presentation_preference_reports_three_distinct_states
+test_nesting_enabled_requires_explicit_on
+test_nest_task_moves_pane_into_the_opened_worktree_child
+test_nest_task_noops_when_the_pane_is_already_in_this_worktree
+test_nest_task_falls_back_when_the_launcher_is_not_the_repository_workspace
+test_nest_task_falls_back_when_the_worktree_is_already_open_elsewhere
+test_nest_task_closes_the_child_it_created_when_the_move_fails_provably
+test_nest_task_refuses_an_ambiguous_move_that_cannot_prove_the_endpoint
 test_projection_journal_is_atomic_and_uses_128_bit_token
 test_projection_journal_v2_binds_and_advances_exact_endpoint
 test_projection_create_uses_exact_response_ids_and_leaves_one_task_pane

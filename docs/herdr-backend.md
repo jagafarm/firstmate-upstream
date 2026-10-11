@@ -163,6 +163,16 @@ Existing task operations use recorded endpoint ids and do not move a live task w
 The per-home workspace is reused while it has task tabs.
 Closing its last tab can remove the workspace, and the next spawn recreates it.
 
+## Worktree nesting
+
+A home opts in by writing `on` into local gitignored `config/herdr-worktree-nesting`; any other value, an empty file, or no file keeps the existing layout.
+Nesting is honored only on the flat layout, so an opted-in home also writes `off` into `config/herdr-presentation-spaces`.
+After `treehouse get` settles the task worktree and before the endpoint is recorded, `fm_backend_herdr_nest_task` opens that worktree with `herdr worktree open --workspace <launcher workspace>` (never a cwd lookup, which can adopt and relabel an unrelated workspace), moves the live task pane into it as a new tab, closes the child's seeded shell tab, and hands the moved pane, tab and workspace ids to the metadata write.
+The task process survives the move; only its ids change. Herdr then shows the task indented under the launcher and reports the task branch.
+The launcher workspace must be rooted at the project's primary checkout for Herdr to bind it as the repository parent; otherwise, or when the worktree is already open elsewhere, the spawn keeps the flat task tab and warns. Only an ambiguous move, where the endpoint cannot be proved, stops the spawn.
+Teardown is unchanged: closing the task pane empties the child workspace, which Herdr removes. `herdr worktree remove` is never used; Treehouse still owns the worktree.
+`tests/fm-backend-herdr-worktree-nesting-e2e.test.sh` covers nesting, the fallback, and teardown against an isolated real Herdr session.
+
 ## Presentation spaces
 
 Each new crewmate or scout is placed in a disposable one-task workspace by default, on Herdr 0.8.0 and newer.
