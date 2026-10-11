@@ -1992,8 +1992,10 @@ _fm_composer_classify_bare_pi_overlap() {  # <screen> <styled> <has-identity> <i
 
 # Devin 3000.11.3's bypass composer is positive proof only when its exact
 # titled upper rule and solid lower rule agree with native Devin identity.
-# Proven typed content stays pending, while only native idle/done may promote
-# the exact placeholder or bare glyph to empty.
+# The entire pair is checked so nested draft structures cannot prove an empty
+# input. Only the first prompt glyph and styled ghost text are removed; plain
+# placeholder-like text is not proof of emptiness. Styled content stays pending,
+# plain content stays unknown, and only native idle/done can prove empty.
 _fm_composer_devin_bypass_verdict() {  # <screen> <styled> <has-identity> <identity>
   local screen=$1 styled=$2 has_identity=$3 identity=$4
   local agent agent_status row raw content first
