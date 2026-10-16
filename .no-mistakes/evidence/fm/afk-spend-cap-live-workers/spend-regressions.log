@@ -1,0 +1,4 @@
+ok - the away spend cap is rechecked under the task-set lock so concurrent spawns cannot both publish
+ok - the away spend cap counts only live worker endpoints - stopped records free it, unknown reads still count, secondmates and relaunches stay exempt
+ok - the away spend cap counts a record whose launch is still in flight, then frees it once the grace passes
+ok - a quiet-mode record never caps a present captain's spawn, while the away record's cap still binds
