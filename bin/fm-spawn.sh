@@ -1781,15 +1781,9 @@ spawn_refuse_if_away_spend_cap() {
     exit 1
   fi
 }
-# Spend cap (bin/fm-afk-contract.sh's spend_max_concurrent_workers): while an
-# away record exists (never a quiet-mode one, whose captain is present and
-# spends as attended: bin/fm-afk-contract.sh mode), a fresh ordinary spawn
-# refuses for BOTH actors once this home already runs that many live ordinary
-# workers - records whose endpoint is not positively agent-free, plus any still
-# inside its launch grace - counted by that script's own `live-workers`, which
-# is also the count its entry records as the cap. A relaunch replaces a worker that already
-# counts, and a secondmate is a persistent home rather than spend, so both are
-# exempt. Checked before any endpoint, worktree, or record
+# bin/fm-afk-contract.sh's SPEND CAP owns the counting rule and exemptions.
+# This gate binds BOTH actors while away, never while quiet. Checked before
+# any endpoint, worktree, or record
 # exists, so a refusal costs nothing to unwind; rechecked after the task-set
 # lock so two fresh spawns cannot both publish from a stale count.
 spawn_refuse_if_away_spend_cap

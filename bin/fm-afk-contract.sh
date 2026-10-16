@@ -52,9 +52,8 @@
 #   expected_return: <UTC ISO 8601> | -
 #   reach_channels: none
 #   reach_announced: <the one-sentence reach announcement>
-#   spend_max_concurrent_workers: <n>   without --spend, the ordinary worker
-#                                  records this home already holds at entry,
-#                                  and never fewer than the default
+#   spend_max_concurrent_workers: <n>   without --spend, the live-worker count
+#                                  at entry, never below the default
 #                                  (SPEND CAP below)
 #   confirmed: <UTC ISO 8601>       when this mandate was recorded; /afk itself
 #   confirmed_epoch: <seconds>        is the go, so no later human step stamps it
@@ -103,8 +102,8 @@
 #   fm-afk-contract.sh words [--path <record>]
 #   fm-afk-contract.sh validate [--path <record>]  exit 0 when the record is readable and complete
 #   fm-afk-contract.sh live-workers
-#     Print the ordinary worker count this home holds right now (SPEND CAP
-#     below). Reads no record, so it answers before an entry as well as during
+#     Print this home's live ordinary worker count (SPEND CAP below).
+#     Reads no posture record, so it answers before an entry as well as during
 #     one.
 #   fm-afk-contract.sh archive              move the record aside; print its path
 #   fm-afk-contract.sh archived <entered_epoch>   print that archived record's path
@@ -130,11 +129,19 @@
 # both the number written at entry and the counting rule behind it).
 # The cap bounds how many ordinary workers this home runs concurrently while an
 # away record stands; bin/fm-spawn.sh enforces it by refusing a fresh ordinary
-# spawn once the home already holds that many. An ordinary worker record is
-# every state/*.meta whose kind is not secondmate and whose recorded endpoint is
-# not positively agent-free, counted by fm_afk_contract_live_ordinary_workers and exposed as `live-workers`, which is
-# the one implementation both the entry default and that refusal read, so the
-# two can never count differently.
+# spawn once the home already runs that many; relaunches and secondmates are
+# exempt. fm_afk_contract_live_ordinary_workers, exposed as `live-workers`, is
+# the one implementation both the entry default and that refusal read.
+# It considers every state/*.meta whose kind is not secondmate. A record whose
+# spawn_gen epoch is within FM_SPAWN_CAP_LAUNCH_GRACE (default 120 seconds)
+# counts without a probe, protecting the lock-held spawn recheck while its
+# agent is still launching. Otherwise only fm_backend_agent_alive's `dead`
+# answer (the recovery-grade classifier's `dead` or `missing` verdict in
+# bin/fm-backend.sh) excludes it. Alive and every unproven read - ambiguous,
+# unreadable, unverified, failed, or timed out - still count conservatively.
+# Each probe runs in its own process under fm_run_timed, bounded by
+# FM_AFK_CONTRACT_PROBE_SECONDS (default 10 seconds), so a stalled backend CLI
+# cannot hang entry or hold the spawn task-set lock indefinitely.
 # Without --spend, entry records the count standing at that moment, so away mode
 # never narrows work already under way; it never records less than
 # FM_AFK_CONTRACT_SPEND_DEFAULT, so an idle home still enters with the ordinary
@@ -187,20 +194,7 @@ fm_afk_contract_present() {  # [state-dir]
   [ -f "$(fm_afk_contract_path "${1:-$FM_AFK_CONTRACT_STATE}")" ]
 }
 
-# The ordinary workers this home runs right now (the header's SPEND CAP): every
-# state/*.meta whose kind is not secondmate, because a secondmate is a
-# persistent home rather than spend, and whose recorded endpoint is not
-# positively agent-free. fm_backend_agent_alive's `dead` answer (the
-# recovery-grade classifier's `dead` or `missing` verdict, bin/fm-backend.sh)
-# is the one "no live worker" reading, so a stopped record frees the cap while
-# `alive` and every unproven `unknown` - ambiguous, unreadable, unverified -
-# still counts, and so does a probe that does not answer within
-# FM_AFK_CONTRACT_PROBE_SECONDS (default 10). A record published within the last FM_SPAWN_CAP_LAUNCH_GRACE
-# seconds (its spawn_gen carries the publication epoch) may still be launching
-# its agent, which reads `dead` until the harness is in the pane, so it counts
-# without a probe: that keeps two fresh spawns from both passing the
-# lock-held recheck. This is the one implementation of that count, read by the
-# entry default here and by bin/fm-spawn.sh's refusal.
+# Implement the header's SPEND CAP count for entry and bin/fm-spawn.sh.
 fm_afk_contract_live_ordinary_workers() {  # [state-dir]
   local state=${1:-$FM_AFK_CONTRACT_STATE} meta live=0 gen now
   now=$(date +%s)
