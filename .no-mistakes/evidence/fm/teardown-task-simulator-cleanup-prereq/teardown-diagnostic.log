@@ -1,0 +1,13 @@
+ok - teardown leaves opencode's busy plugin in the returned pool worktree as on main
+ok - a missing teardown startup source refuses before cleanup
+ok - an unreadable teardown startup source refuses before cleanup
+ok - a missing adapter sibling refuses before cleanup
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no live watcher process holds this home lock (last beat: 2s ago).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision with a foreground checkpoint: bin/fm-watch-checkpoint.sh --seconds 180.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REFUSED: unsafe secondmate home removal target /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/fm-teardown-tests.qe1eV0/missing-child-adapter-sibling/secondmate-home is inside the active firstmate home
+not ok - missing-child-source: the refusal did not name the missing source

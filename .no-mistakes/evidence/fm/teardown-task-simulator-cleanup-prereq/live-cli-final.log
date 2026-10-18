@@ -1,0 +1,83 @@
+ship refusal exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-ship-z1
+error: spawn of live-ship-z1 refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/config/spawn-preflight
+scout refusal exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-scout-z1
+error: spawn of live-scout-z1 refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/config/spawn-preflight
+secondmate refusal exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-secondmate-z1
+error: spawn of live-secondmate-z1 refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/config/spawn-preflight
+batch refusal exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-batch-z1
+error: spawn of live-batch-z1 refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/config/spawn-preflight
+batch: FAILED to spawn live-batch-z1 (/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/projects/missing)
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-batch-z2
+error: spawn of live-batch-z2 refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/config/spawn-preflight
+batch: FAILED to spawn live-batch-z2 (/Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/projects/missing)
+refused spawns: no state records or project created
+relaunch of nonexistent task exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+error: --relaunch needs an existing task record; no /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/state/live-relaunch-z1.meta
+successful hook reaches branch validation exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-pass-z1
+error: --branch-prefix and task id must form a valid git branch (got 'bad prefix/live-pass-z1')
+teardown absent exit=0
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+missing: skipped: not a directory
+teardown live-clean-absent-z1 complete (window none, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/missing-wt, legacy record accepted without spawn_gen: endpoint missing, incarnation legacy-20261018T080944Z-1207)
+Backlog: live-clean-absent-z1 is closed in /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/data/backlog.md. Run bin/fm-tasks-axi.sh ready for dependency-cleared candidates, check date gates, and dispatch only work whose blockers are gone and date is due.
+task record removed for absent
+teardown invalid exit=0
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+missing: skipped: not a directory
+teardown live-clean-invalid-z1 complete (window none, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/missing-wt, legacy record accepted without spawn_gen: endpoint missing, incarnation legacy-20261018T080948Z-7319)
+Backlog: live-clean-invalid-z1 is closed in /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/data/backlog.md. Run bin/fm-tasks-axi.sh ready for dependency-cleared candidates, check date gates, and dispatch only work whose blockers are gone and date is due.
+task record removed for invalid
+teardown pool exit=0
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+missing: skipped: not a directory
+teardown pool-923871 complete (window none, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/missing-wt, legacy record accepted without spawn_gen: endpoint missing, incarnation legacy-20261018T080951Z-14095)
+Backlog: pool-923871 is closed in /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/data/backlog.md. Run bin/fm-tasks-axi.sh ready for dependency-cleared candidates, check date gates, and dispatch only work whose blockers are gone and date is due.
+task record removed for pool
+enabled no-device precondition: exact-name matches=0
+teardown enabled-absent exit=0
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  1 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  repair missing watcher supervision according to the session-start block for this harness; do not use shell &.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+missing: skipped: not a directory
+teardown live-clean-enabled-absent-z1 complete (window none, worktree /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/missing-wt, legacy record accepted without spawn_gen: endpoint missing, incarnation legacy-20261018T080955Z-20828)
+Backlog: live-clean-enabled-absent-z1 is closed in /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/data/backlog.md. Run bin/fm-tasks-axi.sh ready for dependency-cleared candidates, check date gates, and dispatch only work whose blockers are gone and date is due.
+task record removed for enabled-absent

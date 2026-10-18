@@ -1,0 +1,33 @@
+.test-tmp/live-check.sh: line 20: args[@]: unbound variable
+ship refusal exit=1
+
+scout refusal exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-scout-z1
+error: spawn of live-scout-z1 refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/config/spawn-preflight
+secondmate refusal exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+preflight received: live-secondmate-z1
+error: spawn of live-secondmate-z1 refused by /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/config/spawn-preflight
+batch refusal exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+error: ship spawns require --mode <no-mistakes|direct-PR|local-only>; resolve it at intake from the captain's instruction and the project's registered posture in data/projects.md
+refused spawns: no state records or project created
+relaunch of nonexistent task exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+error: --relaunch needs an existing task record; no /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home/state/live-relaunch-z1.meta
+successful hook reaches branch validation exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+error: ship spawns require --mode <no-mistakes|direct-PR|local-only>; resolve it at intake from the captain's instruction and the project's registered posture in data/projects.md
+teardown absent exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+REFUSED: task live-clean-absent-z1 has a missing, empty, or ambiguous window endpoint; preserving task state.
+task record removed for absent
+teardown invalid exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+REFUSED: task live-clean-invalid-z1 has a missing, empty, or ambiguous window endpoint; preserving task state.
+task record removed for invalid
+teardown pool exit=1
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M570PJA3RHD35YJM78MW3WXY/.test-tmp/live-home
+REFUSED: task pool-923871 has a missing, empty, or ambiguous window endpoint; preserving task state.
+task record removed for pool
