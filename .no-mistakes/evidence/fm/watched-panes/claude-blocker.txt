@@ -1,0 +1,23 @@
+Claude requires folder trust. Accepting it would modify user-level tool configuration outside the worktree, forbidden by this phase boundary.
+buruchan_1221@M4Pro-Macmini 01M6CABHCVTFN9910QVKEZZ69B % env -u NO_MISTAKES_GATE -u FM_GATE_R
+EFUSE_BYPASS -u FM_ROOT_OVERRIDE -u FM_STATE_OVERRIDE -u FM_DATA_OVERRIDE -u FM_CONFIG_OVERRI
+DE -u FM_PROJECTS_OVERRIDE FM_HOME=/Users/buruchan_1221/.no-mistakes/evidence/01M6CABHCVTFN99
+10QVKEZZ69B/lab-home claude --settings '{"feedbackDrafts":"off"}'
+
+─────────────────────────────────────────────────────────────────────────────────────────────
+ Accessing workspace:
+
+ /Users/buruchan_1221/.no-mistakes/worktrees/d1d2a4f2f87d/01M6CABHCVTFN9910QVKEZZ69B
+
+ Quick safety check: Is this a project you created or one you trust? (Like your own code, a
+ well-known open source project, or work from your team). If not, take a moment to review
+ what's in this folder first.
+
+ Claude Code'll be able to read, edit, and execute files here.
+
+ Security guide
+
+ ❯ No, exit
+   Yes, I trust this folder
+
+ Enter to confirm · Esc to cancel

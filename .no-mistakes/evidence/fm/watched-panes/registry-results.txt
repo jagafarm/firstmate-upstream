@@ -1,0 +1,2 @@
+PASS real Herdr: explicit label registration/list, duplicate identity refusal, missing workspace refusal, split tab refusal, failed updates preserve registry, absent removal is idempotent.
+fm-lab-watched-panes-32077-10558	Watch lab	Operations	Operations primary	1
