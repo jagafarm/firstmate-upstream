@@ -1,0 +1,8 @@
+ok - fm_transition_record builds a 6-field record and every accessor reads its field
+ok - fm_transition_record uses a single TAB between each of the six fields
+ok - fm_transition_record scrubs TAB/newline out of fields so the record stays exactly six columns
+ok - fm_transition_record tolerates empty workspace/from/agent/detail fields
+ok - fm_transition_policy is the single-owner status->action table (blocked=actionable, working=absorb, idle/done=defer, gone=rescan, else=fallback)
+ok - fm_transition_apply/_commit/_clear: one hit per blocked edge, cleared by working or cleanup, prefix-scoped, gone rescans
+ok - watched-done dedupes each actionable status while ordinary task policy is unchanged
+# fm-transition-lib.test.sh: all assertions passed

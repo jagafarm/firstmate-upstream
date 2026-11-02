@@ -1,0 +1,4 @@
+1793662862	2	stale	fm-lab-watched-1581-20373:w2:p3	stale: watched pane Beta (fm-lab-watched-1581-20373:w2:p3, herdr: agent blocked)
+WAKE_ACK_REQUIRED: after handling completes run bin/fm-wake-drain.sh --ack-through 2 --recovery-generation 11823.1793662863.plT9WO
+WARNING: watcher still down (same stale episode; last beat: 3s ago, grace 300s) - full banner already printed this episode.
+WARNING: queued wakes pending - drain them with bin/fm-wake-drain.sh before anything else.

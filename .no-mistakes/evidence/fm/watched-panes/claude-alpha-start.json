@@ -1,0 +1,1 @@
+{"id":"cli:agent:start:pane","error":{"code":"server_not_running","message":"no herdr server is running at /Users/buruchan_1221/.config/herdr/sessions/fm-lab-watch-60098-13476/herdr.sock; run `herdr session attach fm-lab-watch-60098-13476` to start or attach it"}}
