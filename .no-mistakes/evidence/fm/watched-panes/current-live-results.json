@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Notify blocked wake",
+    "result": "pass",
+    "live": true
+  },
+  {
+    "name": "Blocked blocked wake",
+    "result": "pass",
+    "live": true
+  },
+  {
+    "name": "Blocked-only done suppressed",
+    "result": "pass",
+    "live": true,
+    "observation_seconds": 4
+  },
+  {
+    "name": "Notify done wakes exclusively",
+    "result": "pass",
+    "live": true
+  }
+]

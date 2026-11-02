@@ -1,0 +1,83 @@
+{
+  "tested_head_sha": "a2f1896b0f349c57ca41397788cee66c8161a9b1",
+  "verdict": "pass",
+  "source_changes": false,
+  "root_cause": "Previous evidence gap was the workspace trust setup, now resolved by operator pre-trust; no failing product test reproduced.",
+  "targeted_tests": [
+    {
+      "command": "bash tests/fm-watch-pane.test.sh",
+      "result": "pass",
+      "evidence": "watch-pane-regression-rerun.log"
+    },
+    {
+      "command": "bash tests/fm-supervision-events.test.sh",
+      "result": "pass",
+      "evidence": "supervision-events-regression-rerun.log"
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "Later identity/status timeouts preserve earlier rows and retry unfinished rows",
+      "result": "pass",
+      "live": false,
+      "evidence": "supervision-events-regression-rerun.log",
+      "basis": "Regression evidence explicitly accepted by operator"
+    },
+    {
+      "name": "Retired snapshots cannot recreate markers or suppress a new registration",
+      "result": "pass",
+      "live": false,
+      "evidence": "watch-pane-regression-rerun.log",
+      "basis": "Regression evidence explicitly accepted by operator"
+    },
+    {
+      "name": "Both real Claude primaries block and wake the actual watcher",
+      "result": "pass",
+      "live": true,
+      "evidence": [
+        "claude-watcher-Notify.log",
+        "claude-watcher-Blocked.log",
+        "claude-Notify-blocked.txt",
+        "claude-Blocked-blocked.txt"
+      ]
+    },
+    {
+      "name": "Real Claude completion wakes only the notify-done watch",
+      "result": "pass",
+      "live": true,
+      "evidence": [
+        "real-claude-results.json",
+        "real-claude-transitions.log",
+        "claude-watcher-done-policy.log"
+      ],
+      "blocked_only_completion_observations": [
+        {
+          "time": 1793581611.900088,
+          "status": "done",
+          "completion_seq": 9
+        },
+        {
+          "time": 1793581616.009965,
+          "status": "done",
+          "completion_seq": 15
+        }
+      ]
+    }
+  ],
+  "setup_corrections": [
+    "Kept lab provision command alive so its child server survived between tool calls.",
+    "Acknowledged each handled durable wake with fm-wake-drain before rearming.",
+    "Dismissed the optional auto-mode tutorial using Escape; its separate blocked wake was expected and retained in claude-watcher-tutorial-blocked.log.",
+    "Focused a third shell tab so both watched completions were unseen and reported as done instead of focused-pane idle."
+  ],
+  "limitations": [
+    "Focused tests only; no full suite, lint, formatting, review, push, PR or CI executed.",
+    "Some watcher logs include nonfatal Broken pipe diagnostics from event-reader shutdown; each expected wake exited zero."
+  ],
+  "cleanup": {
+    "lab_session_absent": true,
+    "default_fleet_tripwire_unchanged": true,
+    "evidence": "lab-teardown-rerun.json",
+    "transient_worktree_artifacts": "removed after evidence copy"
+  }
+}

@@ -1,0 +1,6 @@
+15686	Mon Nov  2 01:04:12 2026     bash bin/fm-watch.sh	stale: watched pane Notify (fm-lab-watch-gate-01m6:w1:p1, herdr: agent blocked)
+20602	Mon Nov  2 01:04:18 2026     bash bin/fm-watch.sh	check: rearm-resurface
+26999	Mon Nov  2 01:04:44 2026     bash bin/fm-watch.sh	stale: watched pane Blocked (fm-lab-watch-gate-01m6:w1:p2, herdr: agent blocked)
+33567	Mon Nov  2 01:04:53 2026     bash bin/fm-watch.sh	stale: watched pane Blocked (fm-lab-watch-gate-01m6:w1:p2, herdr: agent blocked)
+5130	Mon Nov  2 01:06:46 2026     bash bin/fm-watch.sh	stale: watched pane Notify (fm-lab-watch-gate-01m6:w1:p1, herdr: agent done)
+7299	Mon Nov  2 01:06:49 2026     bash bin/fm-watch.sh	stale: watched pane Notify (fm-lab-watch-gate-01m6:w1:p1, herdr: agent done)

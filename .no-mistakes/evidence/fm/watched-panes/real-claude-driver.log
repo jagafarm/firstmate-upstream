@@ -1,0 +1,23 @@
+[
+  {
+    "scenario": "Notify blocked",
+    "passed": true,
+    "watcher_output": "/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/backends/herdr.sh: line 4010: printf: write error: Broken pipe\n/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/backends/herdr.sh: line 4011: printf: write error: Broken pipe\nstale: watched pane Notify (fm-lab-watch-gate-01m6:w1:p1, herdr: agent blocked)\n"
+  },
+  {
+    "scenario": "Blocked blocked",
+    "passed": true,
+    "watcher_output": "/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/backends/herdr.sh: line 4010: printf: write error: Broken pipe\n/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/backends/herdr.sh: line 4011: printf: write error: Broken pipe\nstale: watched pane Blocked (fm-lab-watch-gate-01m6:w1:p2, herdr: agent blocked)\n"
+  },
+  {
+    "scenario": "Blocked done suppressed",
+    "passed": true,
+    "observation_seconds": 4,
+    "agent_status": "done"
+  },
+  {
+    "scenario": "Notify done delivered exclusively",
+    "passed": true,
+    "watcher_output": "/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/backends/herdr.sh: line 4010: printf: write error: Broken pipe\n/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/backends/herdr.sh: line 4011: printf: write error: Broken pipe\nstale: watched pane Notify (fm-lab-watch-gate-01m6:w1:p1, herdr: agent done)\n"
+  }
+]

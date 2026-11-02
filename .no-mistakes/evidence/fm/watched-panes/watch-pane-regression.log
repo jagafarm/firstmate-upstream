@@ -1,0 +1,5 @@
+ok - valid nonempty pane watches need supervision independently of tasks and done policy
+ok - watched identity resolves current IDs and refuses missing or ambiguous workspaces/tabs/panes
+ok - watch CLI validates, atomically upserts, lists and idempotently removes without lifecycle calls
+ok - remove/replace retire watch-owned escalation markers, keep task-owned state, and stay idempotent
+ok - bounded Herdr wait retains explicit pane/session list, opt-in stream/reconnect policy and dedupe

@@ -1,0 +1,9 @@
+Resolved real Herdr pane: fm-lab-watch-gate-01m6:w1:p1
+remove: watch-owned marker retired; registry:
+fm-lab-watch-gate-01m6	watch-live	blocked-only	Blocked	0
+replace: watch-owned marker retired; registry:
+fm-lab-watch-gate-01m6	watch-live	blocked-only	Blocked	0
+fm-lab-watch-gate-01m6	watch-live	notify	Notify	0
+remove task-owned registration: task marker retained as blocked
+unresolvable pane: repeated removal succeeded; registry:
+fm-lab-watch-gate-01m6	watch-live	blocked-only	Blocked	0

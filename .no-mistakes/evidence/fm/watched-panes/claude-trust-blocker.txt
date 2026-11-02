@@ -1,0 +1,22 @@
+buruchan_1221@M4Pro-Macmini 01M6CV1MTS66Y6ANJ9AYFS72RN % env -u FM_ROOT_OVERRIDE -u FM_STATE_OVERRIDE -u FM_DATA_OVERRI
+DE -u FM_CONFIG_OVERRIDE -u FM_PROJECTS_OVERRIDE FM_HOME='/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6
+CV1MTS66Y6ANJ9AYFS72RN/.test-live/home' claude --strict-mcp-config --mcp-config '{"mcpServers":{}}' --settings '{"disab
+leAllHooks":true}' --system-prompt 'You are an isolated CLI testing assistant. Follow only the explicit user request. D
+o not inspect files or perform any operations unless explicitly requested. Reply concisely.'
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Accessing workspace:
+
+ /Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN
+
+ Quick safety check: Is this a project you created or one you trust? (Like your own code, a well-known open source
+ project, or work from your team). If not, take a moment to review what's in this folder first.
+
+ Claude Code'll be able to read, edit, and execute files here.
+
+ Security guide
+
+ ❯ No, exit
+   Yes, I trust this folder
+
+ Enter to confirm · Esc to cancel

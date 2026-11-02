@@ -1,0 +1,27 @@
+[
+  {
+    "mode": "budget",
+    "watcher_pid": 78186,
+    "delayed_read_pids": [
+      "82087",
+      "85628"
+    ],
+    "delayed_read_pgid": "85567",
+    "reached_seconds": 3.95,
+    "stop_seconds": 0.24,
+    "exit_code": -15,
+    "delayed_read_survived": false
+  },
+  {
+    "mode": "stop",
+    "watcher_pid": 85956,
+    "delayed_read_pids": [
+      "86828"
+    ],
+    "delayed_read_pgid": "86767",
+    "reached_seconds": 1.01,
+    "stop_seconds": 0.21,
+    "exit_code": -15,
+    "delayed_read_survived": false
+  }
+]

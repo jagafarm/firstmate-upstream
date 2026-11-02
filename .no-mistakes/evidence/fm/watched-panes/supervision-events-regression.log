@@ -1,0 +1,20 @@
+ok - handle_push_transition: a blocked crew enqueues a stale wake naming its window and wakes the supervisor
+ok - handle_push_transition: a rex blocked edge's wake names the backend and carries Rex's blocked kind and message
+ok - handle_push_transition: enqueue failure cannot commit the Herdr dedupe marker
+ok - handle_push_transition: a declared-pause crew is absorbed (no fast wake), left to the poll loop's long cadence
+ok - handle_push_transition: a captain-held crew is absorbed (no fast wake), left to the poll loop's long cadence
+ok - event_wait_or_sleep: herdr windows go on the event pane list, but kind=secondmate endpoints are excluded
+ok - event_wait_or_sleep: herdr keeps the push wait in a mixed home; T3's wait runs only without another push backend
+ok - event_wait_or_sleep: one cached capability probe owns validation across bounded waits
+ok - event_wait_or_sleep: a home with no push-capable window is inert (sleeps POLL, never touches the event path)
+ok - event_wait_or_sleep: consecutive event-path failures disable the fast-path and revert to pure polling (fail-closed)
+ok - registry merges with task endpoints, retains secondmate/task policy, groups sessions and refreshes IDs
+ok - watch reasons reach the durable wake queue, dedupe blocked/done, rearm on working and poll without push
+/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/fm-watch.sh: line 3289: 51897 Terminated: 15          "$@" < /dev/null > "$FM_CAPTURE_OUTPUT"
+/Users/buruchan_1221/.no-mistakes/worktrees/cde2eac61d4b/01M6CV1MTS66Y6ANJ9AYFS72RN/bin/fm-watch.sh: line 3289: 53148 Terminated: 15          "$@" < /dev/null > "$FM_CAPTURE_OUTPUT"
+ok - later identity/status timeouts preserve earlier rows and retry unfinished rows
+tests/fm-supervision-events.test.sh: line 327: 56599 Terminated: 15          "$@" < /dev/null > "$FM_CAPTURE_OUTPUT"
+ok - watched-pane reads run through watcher_waited and die at the read budget
+tests/fm-supervision-events.test.sh: line 327: 58802 Terminated: 15          "$@" < /dev/null > "$FM_CAPTURE_OUTPUT"
+ok - second status read is bounded while healthy event subscriptions retain their duration
+# fm-supervision-events.test.sh: all assertions passed
